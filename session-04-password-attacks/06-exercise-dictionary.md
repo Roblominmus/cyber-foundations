@@ -9,7 +9,8 @@ decides which lines get attacked.
 
 ## The hashes
 
-In order: one MD5, one SHA1, one SHA256, one NTLM. Four different passwords.
+Four hashes, four different types, four different passwords. Work out what each
+one is before you run anything.
 
 ```
 0571749e2ac330a7455809c6b0e7af90
@@ -51,32 +52,29 @@ EOF
 
 ## Attack it
 
-Run each mode against the same file. hashcat loads only the lines that parse for
-the mode you gave it, so the other three are skipped and it does not error:
+hashcat loads only the lines that parse for the mode you gave it, so one file can
+hold several types at once and each run attacks only its own. That is why you do
+not have to split the file up.
+
+Work out what each hash is, then run the matching mode, once per type:
 
 ```bash
-hashcat -m 0    -a 0 level1.txt wordlist.txt
-hashcat -m 100  -a 0 level1.txt wordlist.txt
-hashcat -m 1400 -a 0 level1.txt wordlist.txt
-hashcat -m 1000 -a 0 level1.txt wordlist.txt
+hashcat -m <mode> -a 0 level1.txt wordlist.txt
 ```
 
-Then confirm everything fell:
+When you think you have all four, list what cracked, using those same modes:
 
 ```bash
-hashcat -m 0    level1.txt --show
-hashcat -m 100  level1.txt --show
-hashcat -m 1400 level1.txt --show
-hashcat -m 1000 level1.txt --show
+hashcat -m <mode> level1.txt --show
 ```
 
 ## Questions
 
 - Which mode cracked which line?
-- What does the output look like when you run `-m 0` and the answer is an NTLM
-  hash? Try it and describe what happened.
-- Why does one file with four types work here, when normally you would separate
-  them?
+- What happens when the mode you run does not match any line in the file? Try it
+  and describe the output.
+- Why does one file with several types work here, when you might expect to have
+  to separate them?
 
 ## When you are done
 

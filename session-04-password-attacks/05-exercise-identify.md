@@ -50,14 +50,6 @@ For each of the eight lines:
 Use a page per line if that helps. The writing down is the exercise, not the
 tool output.
 
-## Check yourself with hashid
-
-```bash
-while read -r h; do echo "--- $h"; hashid -m "$h"; done < unknown.txt
-```
-
-hashid is a helper, not an oracle. Read what it says, then decide for yourself.
-
 ## Hints, only if you are stuck
 
 - Two of these lines are the same shape as each other but are different

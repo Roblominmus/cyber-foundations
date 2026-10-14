@@ -7,24 +7,20 @@ locked behind a subscription or scattered across writeups. Anything the track
 needs that does not have a solid free link lives here instead, so students can
 read it and practise it without paying for a room or hunting for a tutorial.
 
-## About this material, and who to ask
+## About this material
 
 This repo was assembled with AI, working from the raw notes of
-[Roblominmus](https://github.com/Roblominmus), who runs the track. The technical
-content comes from those notes and from the sources they link to.
+[Roblominmus](https://github.com/Roblominmus). The technical content comes from
+those notes and from the sources they link to.
 
 Because of how it was built, some of the prose may read a little mechanically.
 Pardon that. Treat every page as notes from someone who did the work, tidied up
 by a machine, not as a polished textbook.
 
 If you need help, get stuck, spot something wrong, or want to tell me anything
-about the material, contact me directly instead of guessing:
-
-- Open an issue on this repo, or
-- Message [@Roblominmus](https://github.com/Roblominmus) on GitHub
-
-Questions are welcome. Being stuck is normal, and it is the fastest way to find
-the gaps in these pages.
+about the material, contact me directly rather than guessing. Questions are
+welcome, and being stuck is normal. It is the fastest way to find the gaps in
+these pages.
 
 ## Rules for this repo
 

@@ -9,12 +9,9 @@ workflow: identify, choose the attack, run it, confirm.
 
 ## The eight, again
 
-Two things to notice before you start.
-
-- Four of these are the same password stored four different ways. Crack one and
-  you have a strong hint for the other three.
-- One of them is a constant. You will not crack it. You should be able to explain
-  what it means instead.
+One thing to know before you start: one of these will not crack, no matter what
+you do. That is not a failure on your part. Work out what it is, and explain what
+it means instead of cracking it.
 
 ```
 5f4dcc3b5aa765d61d8327deb882cf99
@@ -68,9 +65,8 @@ hashcat -m 0 unknown.txt --show
 
 Write one paragraph answering this, in your own words:
 
-> Why can two of these hashes be the same password while looking completely
-> different, and why does cracking one of them not automatically give you the
-> other?
+> In your own words: why can the same password produce completely different
+> hashes, and why does cracking one hash not automatically give you the others?
 
 If you can answer that, you understand salting, and you are ready to do this on
 the room rather than on practice data.

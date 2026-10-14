@@ -4,12 +4,12 @@
 
 **Goal:** crack passwords that are not words in your list.
 
-The plain wordlist will not touch these. The passwords are a season, a four digit
-year, and a symbol, which is exactly the shape rules are built for.
+The plain wordlist will not touch these. You have to teach the tool how the words
+have been transformed, which is exactly what rules are for.
 
 ## The hashes
 
-One MD5, one SHA1, one NTLM.
+Three hashes of three different types. Work out what each one is first.
 
 ```
 e56f3bb5392369b6468e744ab1da078b
@@ -41,12 +41,10 @@ EOF
 
 ## First, prove the plain list fails
 
-Run exercise 2 again on this file, without any rules:
+Run the plain dictionary attack again on this file, with no rules:
 
 ```bash
-hashcat -m 0    -a 0 level2.txt wordlist.txt
-hashcat -m 100  -a 0 level2.txt wordlist.txt
-hashcat -m 1000 -a 0 level2.txt wordlist.txt
+hashcat -m <mode> -a 0 level2.txt wordlist.txt
 ```
 
 Nothing cracks. That is the point: the password is not a word, it is a word that
@@ -56,10 +54,10 @@ the transformed version, or you can teach the tool the transformation.
 ## Now add the rules
 
 ```bash
-hashcat -m 0    -a 0 level2.txt wordlist.txt -r rules/mutate.rule
-hashcat -m 100  -a 0 level2.txt wordlist.txt -r rules/mutate.rule
-hashcat -m 1000 -a 0 level2.txt wordlist.txt -r rules/mutate.rule
+hashcat -m <mode> -a 0 level2.txt wordlist.txt -r rules/mutate.rule
 ```
+
+Once per type, the same modes you just used.
 
 ## Questions
 
