@@ -1,6 +1,6 @@
 # Exercise 4: salted and slow
 
-[Previous: Exercise 3](07-exercise-rules.md) | [Session index](README.md) | [Next: Exercise 5](09-exercise-close-the-loop.md)
+[Previous: John the Ripper](07-john.md) | [Session index](README.md) | [Next: Exercise 5: close the loop](09-exercise-close-the-loop.md)
 
 **Goal:** crack three salted hashes, in both tools, and feel the difference.
 
@@ -39,7 +39,7 @@ hashcat -m 3200 -a 0 level3.txt wordlist.txt
 ```
 
 If hashcat will not start, that is the virtual machine problem from
-[02-hashcat.md](02-hashcat.md). Skip to john and come back to it.
+[the hashcat page](03-hashcat.md). Skip to john and come back to it.
 
 ## With john
 
@@ -63,7 +63,7 @@ john --show level3.txt
 
 ## When you are done
 
-Compare with exercise 4 in [10-solutions.md](10-solutions.md), then move on to
+Compare with Exercise 4 in [Solutions](10-solutions.md), then move on to
 [Exercise 5](09-exercise-close-the-loop.md).
 
-[Previous: Exercise 3](07-exercise-rules.md) | [Session index](README.md) | [Next: Exercise 5](09-exercise-close-the-loop.md)
+[Previous: John the Ripper](07-john.md) | [Session index](README.md) | [Next: Exercise 5: close the loop](09-exercise-close-the-loop.md)

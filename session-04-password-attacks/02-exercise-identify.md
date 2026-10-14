@@ -1,6 +1,6 @@
 # Exercise 1: identify the type
 
-[Previous: Wordlists and mutation](04-wordlists.md) | [Session index](README.md) | [Next: Exercise 2](06-exercise-dictionary.md)
+[Previous: Hashes, and how to identify them](01-hashes.md) | [Session index](README.md) | [Next: hashcat](03-hashcat.md)
 
 **Goal:** look at a hash and say what it is. Do not crack anything yet.
 
@@ -60,7 +60,7 @@ tool output.
 
 ## When you are done
 
-Check your answers against exercise 1 in [10-solutions.md](10-solutions.md), then
-move on to [Exercise 2](06-exercise-dictionary.md).
+Check your answers against Exercise 1 in [Solutions](10-solutions.md), then move on to
+[hashcat](03-hashcat.md), which is how every other exercise here gets cracked.
 
-[Previous: Wordlists and mutation](04-wordlists.md) | [Session index](README.md) | [Next: Exercise 2](06-exercise-dictionary.md)
+[Previous: Hashes, and how to identify them](01-hashes.md) | [Session index](README.md) | [Next: hashcat](03-hashcat.md)

@@ -1,6 +1,6 @@
 # Exercise 5: close the loop
 
-[Previous: Exercise 4](08-exercise-salted.md) | [Session index](README.md) | [Next: Solutions](10-solutions.md)
+[Previous: Exercise 4: salted and slow](08-exercise-salted.md) | [Session index](README.md) | [Next: Solutions](10-solutions.md)
 
 **Goal:** go back to the eight hashes from exercise 1 and crack every one of them.
 
@@ -73,7 +73,7 @@ the room rather than on practice data.
 
 ## When you are done
 
-Check everything against [10-solutions.md](10-solutions.md). Then go and do the
+Check everything against [Solutions](10-solutions.md). Then go and do the
 room in the track, where the hashes are real and the pressure is higher.
 
-[Previous: Exercise 4](08-exercise-salted.md) | [Session index](README.md) | [Next: Solutions](10-solutions.md)
+[Previous: Exercise 4: salted and slow](08-exercise-salted.md) | [Session index](README.md) | [Next: Solutions](10-solutions.md)

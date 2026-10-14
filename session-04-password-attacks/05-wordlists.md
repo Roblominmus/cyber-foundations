@@ -1,6 +1,6 @@
 # Wordlists and mutation
 
-[Previous: 03-john.md](03-john.md) | [Session index](README.md) | [Next: Exercise 1: identify the type](05-exercise-identify.md)
+[Previous: Exercise 2: dictionary attack](04-exercise-dictionary.md) | [Session index](README.md) | [Next: Exercise 3: rules](06-exercise-rules.md)
 
 Most cracks succeed because of the wordlist, not the tool. This page is about
 picking and building the right one.
@@ -83,7 +83,7 @@ kwp -s 1 basechars/full.base keymaps/en-us.keymap routes/2-to-16-max-3-direction
 ### Step 6: Masks, last
 
 Only when you know something concrete, like a fixed length or a known prefix.
-See the mask section in [the hashcat page](02-hashcat.md).
+See the mask section in [the hashcat page](03-hashcat.md).
 
 ## Generating a mutated list as a file
 
@@ -143,4 +143,4 @@ A wordlist is a guess about human behaviour. If your crack fails, the useful
 question is not "is the password strong" but "what would this person have typed".
 That is the whole skill.
 
-[Previous: 03-john.md](03-john.md) | [Session index](README.md) | [Next: Exercise 1: identify the type](05-exercise-identify.md)
+[Previous: Exercise 2: dictionary attack](04-exercise-dictionary.md) | [Session index](README.md) | [Next: Exercise 3: rules](06-exercise-rules.md)

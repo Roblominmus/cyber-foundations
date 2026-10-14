@@ -1,6 +1,6 @@
 # hashcat
 
-[Previous: 01-hashes.md](01-hashes.md) | [Session index](README.md) | [Next: John the Ripper](03-john.md)
+[Previous: Exercise 1: identify the type](02-exercise-identify.md) | [Session index](README.md) | [Next: Exercise 2: dictionary attack](04-exercise-dictionary.md)
 
 hashcat is a password recovery tool. It hashes candidate passwords and compares
 them to the target hash. It is built to run on a GPU, which is what makes it
@@ -156,6 +156,6 @@ not a broken hash and it is not a wrong mode.
 
 ## Practise
 
-Exercises 2, 3 and 4 are all hashcat work. Start at [Exercise 2](06-exercise-dictionary.md).
+Exercises 2 and 3 are hashcat work. Start at [Exercise 2](04-exercise-dictionary.md).
 
-[Previous: 01-hashes.md](01-hashes.md) | [Session index](README.md) | [Next: John the Ripper](03-john.md)
+[Previous: Exercise 1: identify the type](02-exercise-identify.md) | [Session index](README.md) | [Next: Exercise 2: dictionary attack](04-exercise-dictionary.md)

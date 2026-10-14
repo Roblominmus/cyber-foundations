@@ -1,19 +1,21 @@
 # Session 04: Password attacks
 
-Read these in order. Every page ends with a link to the next one, so if you just
-keep clicking through you will cover the whole session in a sensible sequence.
+Read these in order. The pages alternate deliberately: read one, then use it. Every
+tool page is immediately followed by the exercise that needs it, and nothing is
+used before it is taught. If you just keep clicking Next you will cover the whole
+session in the right sequence.
 
 | # | Page | What it covers |
 |---|---|---|
 | 01 | [Hashes, and how to identify them](01-hashes.md) | What a hash is, salting, where hashes come from on a job, identifying a type |
-| 02 | [hashcat](02-hashcat.md) | Attack modes, masks, rules, options, workflow, the VM problem |
-| 03 | [John the Ripper](03-john.md) | Driving john, and the `*2john` tools for files |
-| 04 | [Wordlists and mutation](04-wordlists.md) | Sources, strategy, rules, building your own |
-| 05 | [Exercise 1: identify the type](05-exercise-identify.md) | Look at eight hashes and classify them, no cracking |
-| 06 | [Exercise 2: dictionary attack](06-exercise-dictionary.md) | Crack a mixed file with one wordlist |
-| 07 | [Exercise 3: rules](07-exercise-rules.md) | Crack passwords that are not in the wordlist |
+| 02 | [Exercise 1: identify the type](02-exercise-identify.md) | Practise identification. Needs nothing but page 01, no cracking |
+| 03 | [hashcat](03-hashcat.md) | Attack modes, masks, rules, options, workflow, the VM problem |
+| 04 | [Exercise 2: dictionary attack](04-exercise-dictionary.md) | Your first crack, using the hashcat you just read |
+| 05 | [Wordlists and mutation](05-wordlists.md) | Sources, strategy, and how rules turn words into passwords |
+| 06 | [Exercise 3: rules](06-exercise-rules.md) | Crack passwords that are not words, using mutation |
+| 07 | [John the Ripper](07-john.md) | The CPU tool, and the `*2john` family for pulling hashes out of files |
 | 08 | [Exercise 4: salted and slow](08-exercise-salted.md) | md5crypt, sha512crypt and bcrypt, in both tools |
-| 09 | [Exercise 5: close the loop](09-exercise-close-the-loop.md) | Identify, then crack, all eight |
+| 09 | [Exercise 5: close the loop](09-exercise-close-the-loop.md) | Identify, then crack, all eight, using everything so far |
 | 10 | [Solutions](10-solutions.md) | Answers and exact commands. Read after you try |
 
 ## Reading this on GitHub, or cloning it
@@ -41,7 +43,7 @@ sudo apt install hashcat john hashcat-data hashid
 ```
 
 If hashcat refuses to start because it cannot find a device, that is normal in a
-virtual machine and it is covered in [02-hashcat.md](02-hashcat.md).
+virtual machine and it is covered in [the hashcat page](03-hashcat.md).
 
 ## How this connects to the track
 

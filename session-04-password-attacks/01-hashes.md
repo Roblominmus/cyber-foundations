@@ -1,6 +1,6 @@
 # Hashes: what they are and how to identify them
 
-[Session index](README.md) | [Next: hashcat](02-hashcat.md)
+[Session index](README.md) | [Next: Exercise 1: identify the type](02-exercise-identify.md)
 
 ## What a hash is
 
@@ -219,7 +219,7 @@ john --list=formats | tr ',' '\n' | head -50
 
 ## Now do it
 
-Go to [Exercise 1](05-exercise-identify.md). It is pure identification, with no
+Go to [Exercise 1](02-exercise-identify.md). It is pure identification, with no
 cracking. Do that before you read any further.
 
-[Session index](README.md) | [Next: hashcat](02-hashcat.md)
+[Session index](README.md) | [Next: Exercise 1: identify the type](02-exercise-identify.md)

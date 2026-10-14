@@ -1,6 +1,6 @@
 # Exercise 3: rules
 
-[Previous: Exercise 2](06-exercise-dictionary.md) | [Session index](README.md) | [Next: Exercise 4](08-exercise-salted.md)
+[Previous: Wordlists and mutation](05-wordlists.md) | [Session index](README.md) | [Next: John the Ripper](07-john.md)
 
 **Goal:** crack passwords that are not words in your list.
 
@@ -70,7 +70,7 @@ Once per type, the same modes you just used.
 
 ## When you are done
 
-Compare with exercise 3 in [10-solutions.md](10-solutions.md), then move on to
-[Exercise 4](08-exercise-salted.md).
+Compare with Exercise 3 in [Solutions](10-solutions.md), then move on to
+[John the Ripper](07-john.md), the other tool. Exercise 4 uses both.
 
-[Previous: Exercise 2](06-exercise-dictionary.md) | [Session index](README.md) | [Next: Exercise 4](08-exercise-salted.md)
+[Previous: Wordlists and mutation](05-wordlists.md) | [Session index](README.md) | [Next: John the Ripper](07-john.md)

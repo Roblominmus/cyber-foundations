@@ -1,6 +1,6 @@
 # Exercise 2: dictionary attack
 
-[Previous: Exercise 1](05-exercise-identify.md) | [Session index](README.md) | [Next: Exercise 3](07-exercise-rules.md)
+[Previous: hashcat](03-hashcat.md) | [Session index](README.md) | [Next: Wordlists and mutation](05-wordlists.md)
 
 **Goal:** crack four hashes of four different types using one wordlist.
 
@@ -78,7 +78,7 @@ hashcat -m <mode> level1.txt --show
 
 ## When you are done
 
-Compare with exercise 2 in [10-solutions.md](10-solutions.md), then move on to
-[Exercise 3](07-exercise-rules.md).
+Compare with Exercise 2 in [Solutions](10-solutions.md), then move on to
+[Wordlists and mutation](05-wordlists.md), which is where the rules come from.
 
-[Previous: Exercise 1](05-exercise-identify.md) | [Session index](README.md) | [Next: Exercise 3](07-exercise-rules.md)
+[Previous: hashcat](03-hashcat.md) | [Session index](README.md) | [Next: Wordlists and mutation](05-wordlists.md)
