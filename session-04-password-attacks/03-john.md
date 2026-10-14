@@ -1,5 +1,7 @@
 # John the Ripper
 
+[Previous: 02-hashcat.md](02-hashcat.md) | [Session index](README.md) | [Next: Wordlists and mutation](04-wordlists.md)
+
 john is the other half of the pair. Where hashcat wants a GPU and an explicit
 hash type, john runs on the CPU, auto-detects many formats, and comes with a
 family of tools for pulling hashes out of files.
@@ -112,5 +114,7 @@ usually the one that just works.
 
 ## Practise
 
-Exercise 4 in [practice.md](practice.md) is designed to be done in both tools so
+Exercise 4 in [08-exercise-salted.md](08-exercise-salted.md) is designed to be done in both tools so
 you can feel the speed difference on a salted hash.
+
+[Previous: 02-hashcat.md](02-hashcat.md) | [Session index](README.md) | [Next: Wordlists and mutation](04-wordlists.md)

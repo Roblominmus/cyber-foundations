@@ -1,5 +1,7 @@
 # hashcat
 
+[Previous: 01-hashes.md](01-hashes.md) | [Session index](README.md) | [Next: John the Ripper](03-john.md)
+
 hashcat is a password recovery tool. It hashes candidate passwords and compares
 them to the target hash. It is built to run on a GPU, which is what makes it
 thousands of times faster than a CPU tool against fast hashes.
@@ -128,7 +130,7 @@ not a broken hash and it is not a wrong mode.
 
 ## Workflow
 
-1. Identify the type. See [hashes.md](hashes.md).
+1. Identify the type. See [Hashes, and how to identify them](01-hashes.md).
 2. Check the potfile first. You may have cracked it already:
 
    ```bash
@@ -154,4 +156,6 @@ not a broken hash and it is not a wrong mode.
 
 ## Practise
 
-Exercises 2, 3 and 4 in [practice.md](practice.md) are all hashcat. Start there.
+Exercises 2, 3 and 4 are all hashcat work. Start at [Exercise 2](06-exercise-dictionary.md).
+
+[Previous: 01-hashes.md](01-hashes.md) | [Session index](README.md) | [Next: John the Ripper](03-john.md)

@@ -1,12 +1,14 @@
 # Solutions
 
+[Previous: 09-exercise-close-the-loop.md](09-exercise-close-the-loop.md) | [Session index](README.md)
+
 How these hashes were made: every hash in `practice/` was generated from the
 plaintexts listed on this page. The answers are known by construction, so nobody
 had to crack anything to write this file. That also means if a hash here does
 not crack for you, the problem is your mode, your wordlist or your rule, not the
 hash being unbreakable.
 
-Try the exercises in [practice.md](practice.md) before reading on.
+Try the exercises first, starting at [Exercise 1](05-exercise-identify.md).
 
 ## Exercise 1: identify, do not crack
 
@@ -157,3 +159,5 @@ In order of likelihood:
 2. The plaintext is not in your wordlist and no rule produces it.
 3. You are running a salted or slow hash and gave up before it finished.
 4. hashcat cannot see a device, which is a hardware problem, not a hash problem.
+
+[Previous: 09-exercise-close-the-loop.md](09-exercise-close-the-loop.md) | [Session index](README.md)
