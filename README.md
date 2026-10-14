@@ -27,14 +27,16 @@ these pages.
 - Read first, then do. Every page ends with something to actually run.
 - No page is only reading. If there is nothing to test it against, it does not
   belong here.
-- Answers live in `solutions.md` files. They are not hidden, they are just in
-  their own note. Try the work first.
+- Answers live in `solutions.md` files when we own the answers. Where the answer
+  belongs to a room or a lab, we do not publish it. The flag stays yours to find.
 
 ## Sessions
 
 | Session | Topic | Material |
 |---|---|---|
+| 03 | Web recon, and the OWASP Top 10 list | [session-03-web](session-03-web/README.md) |
 | 04 | Password attacks | [session-04-password-attacks](session-04-password-attacks/README.md) |
+| 04 | Privilege escalation, theory half | [session-04-privilege-escalation](session-04-privilege-escalation/README.md) |
 
 ## Licence and use
 
