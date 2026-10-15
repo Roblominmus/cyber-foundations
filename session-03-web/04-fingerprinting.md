@@ -89,69 +89,92 @@ Confirm the version first.
 
 ## Practise
 
-### On the range: headers, flag 7
-
-With the range up, ask the web server who it is:
+### Task 1: read the headers, any operating system
 
 ```bash
 curl -s -D - -o /dev/null -H "Host: www.recon.lab" http://127.0.0.1:8080/
 ```
 
-1. What web server and version does the `Server` header name?
-2. What does `X-Powered-By` claim, and what does that tell you about the app?
-3. Are either of those versions real things you could search for? What would you
-   do next with them on a real target?
+On Windows use `curl.exe` if plain `curl` opens something else. In PowerShell,
+`curl` is an alias for `Invoke-WebRequest`, so `curl.exe` is the reliable form.
 
-### On the range: find the hidden virtual host
+1. What web server and version does `Server` name?
+2. What does `X-Powered-By` claim?
+3. Are those real products with real versions? What would you search for next?
+4. What is missing from these headers that you might see on other servers, and
+   what does the absence tell you?
 
-Unknown hostnames return 404, so you have a baseline to filter against. Fuzz the
-`Host` header to see which names the server actually knows:
+### Task 2: find the hidden virtual host, flag 7
+
+Unknown hostnames return 404, so you have a baseline. Find the hosts that are real.
+
+**Linux or macOS, with ffuf:**
 
 ```bash
-ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
-     -u http://127.0.0.1:8080/ -H "Host: FUZZ.recon.lab" -fs 153
+ffuf -w recon-range/wordlist.txt -u http://127.0.0.1:8080/ \
+     -H "Host: FUZZ.recon.lab" -fs 153
 ```
 
-`-fs 153` throws away the 404 responses by size, so only the real hosts survive.
-You should see the main site twice and one host that is different.
+`-fs 153` throws away responses of that size, which is the 404 page, so only the
+real hosts survive.
 
-On that host, look at the headers:
+**Windows PowerShell, no extra tools needed:**
+
+```powershell
+Get-Content recon-range\wordlist.txt | ForEach-Object {
+  $out = curl.exe -s -o NUL -w "%{http_code} %{size_download}" -H "Host: $_.recon.lab" http://127.0.0.1:8080/
+  if ($out -notlike "404*") { "found: $_.recon.lab  ($out)" }
+}
+```
+
+**Any system, using the tools container:**
+
+```bash
+docker compose run --rm tools @dns portal.recon.lab A
+```
+
+5. Which hostnames answer?
+6. Now look at the headers on each:
 
 ```bash
 curl -s -D - -o /dev/null -H "Host: portal.recon.lab" http://127.0.0.1:8080/
 ```
 
-**Flag 7** is in a response header that only that virtual host sends. That is the
-lesson: the same IP serves several sites, and one of them has something the others
-do not.
+**Flag 7** is in a header that only that vhost sends. That is the lesson: one IP,
+several sites, and one of them has something the others do not.
+
+### Task 3: fingerprint something real, in a browser
+
+Needs no tools, so it works anywhere:
+
+1. Open a site you are allowed to look at in a browser.
+2. Open developer tools, then the Network tab, then reload.
+3. Click the first request to the page and read the response headers.
+4. Record `Server`, any `X-Powered-By`, and the session cookie names.
+5. Install a technology detection extension such as Wappalyzer and compare what
+   it reports with what you found by hand.
+
+Do that for three sites that you expect to differ: a large company, a small
+business, and a personal site.
+
+| | Large company | Small business | Personal site |
+|---|---|---|---|
+| `Server` | | | |
+| `X-Powered-By` or similar | | | |
+| Session cookie, and what it implies | | | |
+| CDN in front, and how you know | | | |
+| Versions you can pin down | | | |
 
 ### Room task
 
 **[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**
-(free). Chrome developer tools, `curl`, and netcat against a target, with questions
-about what the responses tell you. The header questions there are exactly this
-page, on a real host.
+(free). The header and curl questions there are exactly this page, on a real host.
 
-### Real world task
+**Questions for your notes:**
 
-Three sites you are allowed to look at: a large company, a small business, and a
-personal or hobby site. Fill this in for each and compare.
-
-| | Large company | Small business | Personal site |
-|---|---|---|---|
-| `Server` header | | | |
-| `X-Powered-By` or similar | | | |
-| Session cookie name, and what it implies | | | |
-| CDN in front, and how you can tell | | | |
-| Version numbers you can pin down | | | |
-| What `whatweb --aggression 1` adds | | | |
-
-**Questions to answer in your notes:**
-
-- Which site gave away the most, and why might that be?
-- A CDN header hides the origin. What would you do instead of fingerprinting the
-  headers?
-- You see `PHPSESSID`. What do you now know, and what do you still not know?
+- Which site gave away the most, and why?
+- A CDN header hides the origin. What do you do instead?
+- You see `PHPSESSID`. What do you know, and what do you still not know?
 - Why is a version number more useful than a product name?
 
 [Previous: DNS and subdomains](03-dns-and-subdomains.md) | [Session index](README.md) | [Next: Crawling](05-crawling.md)

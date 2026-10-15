@@ -77,37 +77,105 @@ there as well.
 
 ## Practise
 
-This page has no room, so the practice is a real run against a domain you are
-allowed to investigate. Do all five steps and write them up.
+Browser first, then one API call. Both work on any operating system, and both work
+if you are reading this on GitHub, so there is nothing to install.
 
-1. Pick your target domain.
-2. Pull every archived URL:
+### Task 1: the Wayback Machine by hand
+
+1. Open [web.archive.org](https://web.archive.org/).
+2. Paste the address of a domain you are allowed to look at.
+3. Pick a snapshot from several years ago and open it.
+4. Look for each of these in the old version, and note what changed:
+
+| Look at | Why |
+|---|---|
+| The navigation menu | Pages that existed then and may still exist now, unlinked |
+| Job adverts | They name internal technology, sometimes internal hostnames |
+| The team or contact page | People who may still have accounts |
+| Old JavaScript files | Keys that may never have been rotated |
+| Old policy or terms pages | They name systems and vendors |
+
+### Task 2: the CDX API
+
+Faster than clicking, and it gives you the whole list at once. `curl` is on all
+three systems.
+
+**Linux or macOS:**
 
 ```bash
 curl -s "http://web.archive.org/cdx/search/cdx?url=example.com*&output=text&fl=original&collapse=urlkey" | sort -u > archived.txt
 wc -l archived.txt
 ```
 
-3. Filter for the interesting shapes using the grep above. Save the filtered list.
-4. Take the filtered list and probe it to see what still exists today:
+**Windows PowerShell:**
 
-```bash
-cat filtered.txt | httpx -status-code -title -mc 200,301,302,401,403
+```powershell
+curl.exe -s "http://web.archive.org/cdx/search/cdx?url=example.com*&output=text&fl=original&collapse=urlkey" |
+  Sort-Object -Unique | Set-Content archived.txt
+(Get-Content archived.txt).Count
 ```
 
-5. For anything that still answers, open it and decide: is this supposed to be
-   public? Write one sentence per URL saying why or why not.
+Replace `example.com` with your domain. `collapse=urlkey` removes duplicates and
+`fl=original` asks for just the URL column. Add `&from=2015&to=2019` to look at one
+period, which is useful when a site was rebuilt.
 
-**Questions to answer in your notes:**
+### Task 3: filter for the interesting shapes
+
+```bash
+grep -iE "admin|login|api|backup|old|test|dev|staging|upload|config|\.zip|\.sql|\.bak" archived.txt > interesting.txt
+wc -l interesting.txt
+```
+
+On Windows PowerShell:
+
+```powershell
+Select-String -Path archived.txt -Pattern "admin|login|api|backup|old|test|dev|staging|upload|config|\.zip|\.sql|\.bak" |
+  ForEach-Object { $_.Line } | Set-Content interesting.txt
+```
+
+### Task 4: which of them still exist today
+
+This is the step people skip, and it is the step that produces findings. A URL
+from 2016 that still answers today is a live, unlinked, possibly unpatched page.
+
+**Linux or macOS:**
+
+```bash
+while read -r u; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 10 "$u")
+  [ "$code" = "200" ] && echo "STILL LIVE: $u"
+done < interesting.txt
+```
+
+**Windows PowerShell:**
+
+```powershell
+Get-Content interesting.txt | ForEach-Object {
+  $c = curl.exe -s -o NUL -w "%{http_code}" -L --max-time 10 $_
+  if ($c -eq "200") { "STILL LIVE: $_" }
+}
+```
+
+### Deliverable
+
+A list of old URLs that still respond, each with one sentence on the risk:
+
+```
+URL: https://example.com/old-admin/
+First archived: 2016
+Status today: 200, login form
+Risk: a login page that is no longer linked from anywhere and has had no
+      visible changes since 2016. Authentication on it is unknown.
+```
+
+That list, with dates and evidence, is the shape of a real recon finding.
+
+**Questions for your notes:**
 
 - How many archived URLs did you find in total, and how many looked interesting?
 - How many of the interesting ones still respond today?
 - Why is "removed from the menu" not the same as "removed from the server"?
-- What would you check in an archived JavaScript file, and why would an old key
-  still be dangerous?
-
-**Deliverable for this page:** a short list of old URLs that still respond, each
-with a sentence on the risk. That list, with dates and evidence, is exactly the
-shape of a real recon finding.
+- What would you check in an archived JavaScript file, and why is an old key
+  still dangerous?
 
 [Previous: Search engine discovery](06-search-engine-discovery.md) | [Session index](README.md) | [Next: Automating recon](08-automating-recon.md)

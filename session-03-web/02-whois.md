@@ -1,4 +1,4 @@
-# 02: WHOIS
+# 02: WHOIS and email addresses
 
 [Previous: Recon basics](01-recon-basics.md) | [Session index](README.md) | [Next: DNS and subdomains](03-dns-and-subdomains.md)
 
@@ -74,28 +74,80 @@ status are still there, and those are usually enough to move on.
 
 ## Practise
 
-**Room task.** Do the WHOIS tasks in
-[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)
-(free). The room asks you specific questions whose answers come straight out of
-`whois` output, including a question about the registrar and one about when a
-domain was created. Get the answers yourself rather than searching for them.
+WHOIS cannot be faked on your own machine, so this page is a browser page. That
+means it works on any operating system, and it works if you are reading this on
+GitHub with nothing installed.
 
-**Real world task.** Run `whois` against two domains you are allowed to look up,
-one large company and one small site, and answer these in your notes:
+### Task 1: WHOIS by hand, in a browser
 
-1. Which registrar is each one with?
-2. When was each created?
-3. Which name servers does each use, and what company runs them?
-4. Is the registrant redacted, and if not, what can you learn from it?
-5. Which of the two hides more, and why do you think that is?
+Pick two domains you are allowed to look up: one large company and one small site.
+Look each one up in a browser WHOIS service, for example
+[who.is](https://who.is) or [lookup.icann.org](https://lookup.icann.org). Fill
+this in for both:
 
-Compare the two answers. A large company has a legal and brand reason to control
-its registration data, and often uses a corporate registrar with a proxy. A small
-site frequently gives everything away, sometimes including a personal email. That
-difference is the whole point of the exercise.
+| What | Large company | Small site |
+|---|---|---|
+| Registrar | | |
+| Created | | |
+| Expires | | |
+| Name servers, and who runs them | | |
+| Registrant, if not redacted | | |
+| Status codes | | |
 
-**Check:** the correct pattern in `whois` output is that redaction hides the
-person, not the infrastructure. If you found the registrar, the dates and the
-name servers, you did it right.
+Then answer:
+
+1. Which of the two gives away more, and why do you think that is?
+2. Is the registrant redacted? If it is, what did you still get, and is that
+   enough to keep going?
+
+### Task 2: WHOIS from a terminal, if you have one
+
+On **Linux or macOS**:
+
+```bash
+whois example.com
+whois 203.0.113.10
+```
+
+On **Windows** there is no `whois` command. Use the browser service above, or run
+it in WSL if you have it. There is no need to install anything for this page.
+
+Read the output for: the registrar, the creation and expiry dates, the name
+servers, and any `client*Prohibited` status codes. Name servers are the useful
+one, because they tell you which company hosts the DNS.
+
+### Task 3: harvest email addresses, on the range
+
+This is the part that turns WHOIS into something useful. Start the range, then
+collect every address the site gives you. `curl` works on all three systems
+(use `curl.exe` on Windows if plain `curl` misbehaves):
+
+```bash
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/about.html
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/.well-known/security.txt
+```
+
+1. List every email address you found.
+2. Work out the naming pattern from the staff addresses.
+3. Predict the addresses for two more names in the same pattern.
+4. Check the same names against the staff password file in `/ftp/`, once you have
+   found it on page 05. What does the overlap tell you?
+
+The pattern is the finding. On a real engagement, a confirmed address pattern plus
+a list of names is what password spraying is built on.
+
+### Room task
+
+The WHOIS tasks in
+**[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
+(free). Same technique against a real domain, with the room's own answers to check
+yourself against.
+
+**Questions to answer in your notes:**
+
+- What does redaction hide, and what does it leave visible?
+- Why are the name servers more useful than the registrant in most cases?
+- What is the difference between forward WHOIS and reverse WHOIS?
 
 [Previous: Recon basics](01-recon-basics.md) | [Session index](README.md) | [Next: DNS and subdomains](03-dns-and-subdomains.md)

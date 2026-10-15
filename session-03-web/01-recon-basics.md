@@ -1,6 +1,6 @@
 # 01: Recon basics
 
-[Session index](README.md) | [Next: WHOIS](02-whois.md)
+[Session index](README.md) | [Next: WHOIS and email addresses](02-whois.md)
 
 Before any exploit, there is recon. Recon is the work of finding out what exists,
 what it runs, and what it exposes, without touching anything in a way that would
@@ -92,28 +92,55 @@ reach for the right one.
 
 ## Practise
 
-First, start the practice target, because you will use it from page 03 onwards:
+### Start the range first
+
+You will use it from page 03 onwards. It needs Docker and nothing else, and the
+command is the same on Linux, macOS and Windows.
 
 ```bash
-cd recon-range && ./up.sh
+cd recon-range
+docker compose up -d
 ```
 
-That is a small DNS and web server on your own machine with seven flags planted in
-it. Leave it running.
+It is a DNS server and a messy web server on your own machine, with eight flags
+planted in it. Leave it running. Full details, including the Windows specific
+commands, are in the [range README](recon-range/README.md).
 
-Then do the passive half, properly, before you touch anything active on a real
-domain. Two rooms, both free, both with real answers you have to find:
+If you cannot run Docker, do not stop here. Every page still has browser tasks
+that need no local tooling at all.
 
-1. **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**.
-   Work through it and answer every question. This covers WHOIS, DNS lookups,
-   certificate transparency, Shodan and search engines, which are pages 02, 03, 06
-   and 07 of this module. Keep your answers, you will reuse the skills.
+### Then the two passive rooms
 
-2. **[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**.
-   Ping, traceroute, netcat and curl. This is the active half, and it feeds page
+These need no local tools, only a browser, so they work for everyone:
+
+1. **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
+   (free). WHOIS, DNS, certificate transparency, Shodan and search engines, which
+   are pages 02, 03, 06 and 07 of this module. Answer every question in it.
+2. **[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**
+   (free). Ping, traceroute, netcat and curl. The active half, and it feeds page
    04.
 
-While you do them, keep the notes file described above, for the target each room
-gives you. That habit is the actual deliverable of this module.
+### Keep a notes file from the first minute
 
-[Session index](README.md) | [Next: WHOIS](02-whois.md)
+One file per target. For every finding, the command and the output. This is the
+real deliverable of the module, not the flags.
+
+```
+TARGET: recon.lab (or the room's target)
+--- names
+- portal.recon.lab        from the DNS zone
+--- infra
+- 127.0.0.1:15353         the range DNS
+--- tech
+- nginx 1.x               Server header
+- ReconLab/1.4.2          X-Powered-By
+--- entry points and leaks
+- /ftp/                   from robots.txt
+--- flags
+- 1 FLAG{...}             dig @127.0.0.1 -p 15353 recon.lab TXT
+```
+
+That last block matters. A flag with no command behind it is a guess, and a
+finding with no evidence is not a finding.
+
+[Session index](README.md) | [Next: WHOIS and email addresses](02-whois.md)

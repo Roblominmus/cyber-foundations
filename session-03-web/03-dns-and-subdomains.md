@@ -1,6 +1,6 @@
 # 03: DNS and subdomains
 
-[Previous: WHOIS](02-whois.md) | [Session index](README.md) | [Next: Fingerprinting](04-fingerprinting.md)
+[Previous: WHOIS and email addresses](02-whois.md) | [Session index](README.md) | [Next: Fingerprinting](04-fingerprinting.md)
 
 ## Why DNS matters more than it looks
 
@@ -129,100 +129,148 @@ the ones that differ. Without it the output is unreadable.
 
 ## Practise
 
-### On the range: DNS records, flag 1 and flag 2
+### Task 1: DNS records, flag 1
 
-Start the range first: `cd recon-range && ./up.sh`. The DNS server answers on port
-15353, so every query needs `-p 15353`.
+Start the range. Everything here works on all three systems; pick your row.
+
+**Linux or macOS, with dig:**
 
 ```bash
-# the whole zone in one go
 dig @127.0.0.1 -p 15353 recon.lab ANY
-
-# or one type at a time
 dig +short @127.0.0.1 -p 15353 recon.lab MX
 dig +short @127.0.0.1 -p 15353 recon.lab NS
 dig +short @127.0.0.1 -p 15353 recon.lab TXT
 ```
 
-1. **Flag 1** is in the TXT record on the zone. Read it and write it down.
-2. The zone also holds a name that no wordlist will guess. Stop guessing and ask
-   for everything:
+**Windows, with nslookup (already installed):**
 
-```bash
-dig @127.0.0.1 -p 15353 AXFR recon.lab
+```powershell
+nslookup -port=15353 -type=any recon.lab 127.0.0.1
+nslookup -port=15353 -type=mx  recon.lab 127.0.0.1
+nslookup -port=15353 -type=txt recon.lab 127.0.0.1
+nslookup -port=15353 -type=ns  recon.lab 127.0.0.1
 ```
 
-3. **Flag 2** is in the TXT record of that hidden name. Notice what just happened:
-   one query returned every record in the zone, including names you could not have
-   guessed. That is exactly why an open zone transfer is a finding, not a
-   convenience.
-4. Count the names the transfer gave you, then count how many of them a wordlist
-   would have found. Write both numbers down.
-
-### On the range: subdomains against the DNS
+**Any system, using the tools container, which is the same dig everywhere:**
 
 ```bash
-# the names that resolve
-for n in www dev portal mail ns1 legacy-backup; do
-  printf '%-16s ' "$n"; dig +short @127.0.0.1 -p 15353 "$n.recon.lab" A
-done
+docker compose run --rm tools @dns recon.lab ANY
+```
 
-# brute force, small list, this is slow on purpose
-head -200 /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt | \
+1. **Flag 1** is in the TXT record on the zone. Write it down with the command
+   that produced it.
+2. List every record type the zone holds and what each one tells you.
+
+### Task 2: zone transfer, flag 2
+
+A zone transfer asks a name server for every record it holds. When a server does
+not restrict who can ask, you get the whole map at once.
+
+```bash
+# Linux or macOS
+dig @127.0.0.1 -p 15353 AXFR recon.lab
+
+# any system, including Windows
+docker compose run --rm tools @dns AXFR recon.lab
+```
+
+3. **Flag 2** is in the TXT record of a name that no wordlist will guess. Find it
+   in the dump.
+4. Count every name the transfer gave you. Now count how many of them a wordlist
+   would have found. Write both numbers down, because the gap between them is the
+   whole argument for trying AXFR first.
+5. On a real target this usually fails with `Transfer failed`. That is the correct
+   answer, and it is worth recording as "checked, refused".
+
+### Task 3: subdomain enumeration, and why brute force loses
+
+The range ships its own wordlist, so this needs no Kali paths.
+
+**Linux or macOS:**
+
+```bash
 while read -r w; do
   dig +short @127.0.0.1 -p 15353 "$w.recon.lab" A | grep -q . && echo "found: $w.recon.lab"
-done
+done < recon-range/wordlist.txt
 ```
 
-Compare what brute force found with what the zone transfer found. The gap between
-those two lists is the whole argument for checking AXFR first.
+**Windows PowerShell:**
 
-### On the range: subdomain is not virtual host
+```powershell
+Get-Content recon-range\wordlist.txt | ForEach-Object {
+  $r = Resolve-DnsName -Server 127.0.0.1 -Port 15353 -Type A "$_.recon.lab" -ErrorAction SilentlyContinue
+  if ($r) { "found: $_.recon.lab" }
+}
+```
 
-`portal` resolves in DNS, but the web server decides which site to serve from the
-`Host` header alone, with no DNS involved:
+**Any system, naming one host at a time through the tools container, which is the
+same dig everywhere:**
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}\n' -H "Host: www.recon.lab"    http://127.0.0.1:8080/
-curl -s -o /dev/null -w '%{http_code}\n' -H "Host: portal.recon.lab" http://127.0.0.1:8080/
-curl -s -o /dev/null -w '%{http_code}\n' -H "Host: nope.recon.lab"   http://127.0.0.1:8080/
+docker compose run --rm tools @dns portal.recon.lab A
+docker compose run --rm tools @dns www.recon.lab A
 ```
 
-The third one returns 404 while the first two return 200. That baseline is what
-makes vhost fuzzing possible, and it is how you will find flag 7 on the next page.
+6. Which names did brute force find?
+7. Which names did it miss that the zone transfer handed you?
+8. Explain, in one sentence, why brute force can never be complete.
 
-### Room tasks
+### Task 4: certificate transparency, in a browser
 
-- **[TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail)** (free).
-  Every record type, with questions about each. Do this one first, it is the
-  foundation for everything else here.
-- The DNS and certificate transparency tasks in
-  **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
-  (free). The same techniques against a real domain, with the room's own answers.
-  Certificate transparency is the part the range cannot teach you, because it needs
-  a real certificate log.
+This one cannot be faked locally, because it needs the real certificate log. It
+needs no tools, so it works on any system.
 
-### Real world task
+1. Open [crt.sh](https://crt.sh).
+2. Search for `%.` followed by a domain you are allowed to look at, for example
+   `%.example.com`.
+3. From the results, list every unique name.
+4. Compare that list with what subdomain brute force would plausibly find.
+5. Answer: why does this work at all? What is it about certificates that makes
+   every name public?
 
-Against a domain you are allowed to investigate. Fill in the table, do not write
-an essay:
+The room's version of this, with its own answers, is in
+[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)
+(free).
+
+### Task 5: subdomain is not virtual host
+
+The web server decides which site to serve from the `Host` header alone, with no
+DNS involved. That is how one IP hosts many sites.
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -H "Host: www.recon.lab"    http://127.0.0.1:8080/
+curl -s -o /dev/null -w "%{http_code}\n" -H "Host: portal.recon.lab" http://127.0.0.1:8080/
+curl -s -o /dev/null -w "%{http_code}\n" -H "Host: nope.recon.lab"   http://127.0.0.1:8080/
+```
+
+6. The third one returns 404 while the first two return 200. Why does that
+   difference matter for finding virtual hosts?
+7. On Windows, if `curl` does not behave, use `curl.exe` in the same command.
+
+You will finish this on page 04, because the hidden vhost holds flag 7.
+
+### Room task and real world table
+
+**[TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail)** (free) for
+every record type with questions.
+
+Against a real domain you are allowed to investigate:
 
 | What | Your answer |
 |---|---|
 | A record for the apex | |
-| MX, and which mail provider it implies | |
+| MX, and the provider it implies | |
 | NS, and who runs them | |
-| Anything interesting in the TXT records | |
-| Names found via certificate transparency | |
-| Names found via subfinder | |
+| Anything interesting in TXT | |
+| Names from certificate transparency | |
+| Names from the range wordlist method | |
 | Which source found more, and why | |
 | Did a zone transfer work, and should it have | |
 
-**Questions to answer in your notes:**
+**Questions for your notes:**
 
 - Why did the zone transfer give you names that brute force missed?
 - Why does `nope.recon.lab` returning 404 matter for vhost fuzzing?
 - What is the difference between a subdomain and a virtual host?
-- Which record type would you check first to find a company's mail provider?
 
-[Previous: WHOIS](02-whois.md) | [Session index](README.md) | [Next: Fingerprinting](04-fingerprinting.md)
+[Previous: WHOIS and email addresses](02-whois.md) | [Session index](README.md) | [Next: Fingerprinting](04-fingerprinting.md)

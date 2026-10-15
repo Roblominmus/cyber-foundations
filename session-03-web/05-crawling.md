@@ -113,16 +113,17 @@ URLs lead to new URLs.
 
 ## Practise
 
-### On the range: robots.txt, flags 3, 4 and 5
+Everything here is `curl`, which ships with Windows 10 and later, macOS and Linux.
+On Windows use `curl.exe` if plain `curl` misbehaves.
 
-With the range up, read what it does not want crawled:
+### Task 1: robots.txt, flags 4 and 5
 
 ```bash
 curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/robots.txt
 ```
 
-1. Every `Disallow` is a path somebody did not want indexed. Fetch each one
-   directly, because a request is not a control:
+1. List every `Disallow` path. Each one is a path somebody did not want indexed.
+2. Fetch each one directly, because a request is not a control:
 
 ```bash
 curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/ftp/
@@ -130,72 +131,105 @@ curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/internal/
 curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/backup/
 ```
 
-2. The directory listing you get is already a finding. Inside one of these
-   directories is a file of staff passwords. **Flag 4** is in it. Name the other
-   file you found there as well and say what it leaks.
-3. **Flag 5** is on a page inside another disallowed directory.
-4. Work out which of the three disallowed paths gave you something and which gave
-   you nothing, and write that down. A path that returns 404 is still worth
-   recording as "checked".
+3. Two of them return something. **Flag 4** is inside a file of staff passwords
+   in one directory. **Flag 5** is on a page in the other.
+4. Name the second file in the `/ftp` listing and say what it leaks.
+5. One disallowed path returns nothing. Record it as checked and explain why "I
+   looked and there was nothing" still belongs in your notes.
 
-### On the range: source and JavaScript, flags 3 and 6
-
-Crawling is not only paths. Read what the pages hand you.
+### Task 2: source and JavaScript, flags 3 and 6
 
 ```bash
-# the site links to two pages, fetch both and read the raw source
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/ | grep -oE 'href="[^"]+"|src="[^"]+"'
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/about.html | grep -i '<!--'
-```
-
-5. **Flag 3** is in an HTML comment on one of those pages. Developers leave notes,
-   and notes ship.
-6. Now the JavaScript:
-
-```bash
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/about.html
 curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/static/app.js
 ```
 
-7. List every API endpoint the bundle names. How many of them does the user
-   interface actually link to?
-8. **Flag 6** is a key in that file. On a real target, a key in a client side
-   bundle is a finding on its own, because anyone can read it.
+6. **Flag 3** is in an HTML comment. Developers leave notes, and notes ship.
+7. List every API endpoint the JavaScript names. How many does the user interface
+   actually link to?
+8. **Flag 6** is a key in that bundle. Explain why a key in client side code is a
+   finding even when it works perfectly.
 
-### On the range: the well-known pass
+### Task 3: an exposed Git directory, flag 8
 
-Do not forget the fixed paths. Run all of these and record which return anything
-other than 404:
+```bash
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/.git/HEAD
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/.git/config
+```
+
+9. **Flag 8** is in the `origin` URL in the config, as the password in a
+   `https://user:pass@host` style remote.
+10. On a real target, a readable `.git` directory usually means the whole
+    repository, including its history, can be reconstructed. Explain what you
+    would do next and why you would not just download it without thinking.
+
+### Task 4: the well-known pass, and document metadata
+
+Not everything hides in the site's own links.
+
+**Linux or macOS:**
 
 ```bash
 for p in /.well-known/security.txt /.git/HEAD /.env /.DS_Store /backup.zip \
          /phpinfo.php /server-status /swagger.json /openapi.json /actuator; do
-  code=$(curl -s -o /dev/null -w '%{http_code}' -H "Host: www.recon.lab" "http://127.0.0.1:8080$p")
-  printf '%-28s %s\n' "$p" "$code"
+  code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: www.recon.lab" "http://127.0.0.1:8080$p")
+  printf "%-28s %s\n" "$p" "$code"
 done
 ```
 
-Two of them return something. One is a legitimate contact file. The other is a
-serious finding on a real target: explain what an attacker does with it.
+**Windows PowerShell:**
+
+```powershell
+$paths = "/.well-known/security.txt","/.git/HEAD","/.env","/.DS_Store","/backup.zip",
+         "/phpinfo.php","/server-status","/swagger.json","/openapi.json","/actuator"
+foreach ($p in $paths) {
+  $c = curl.exe -s -o NUL -w "%{http_code}" -H "Host: www.recon.lab" "http://127.0.0.1:8080$p"
+  "{0,-30} {1}" -f $p, $c
+}
+```
+
+11. Which paths return something other than 404? Which two matter most, and why?
+12. Now the document. The site links a PDF:
+
+```bash
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/public/annual-report.pdf -o report.pdf
+```
+
+Read its metadata. Any of these works:
+
+```bash
+exiftool report.pdf                 # if you have it
+strings report.pdf | head -20       # no tools needed at all
+```
+
+On Windows, `strings` is not built in, but Notepad or any text editor will show
+these lines, and PowerShell can too:
+
+```powershell
+Get-Content .\report.pdf -Raw | Select-String -Pattern "Author|Creator|Title" -AllMatches
+```
+
+13. Who is the author, and what software made the document?
+14. Cross reference the author with the staff list in `/ftp`. Why does that
+    matter more than either finding alone?
 
 ### Room and lab tasks
 
-- **[TryHackMe: ffuf](https://tryhackme.com/room/ffuf)** (free). Content discovery
-  against a live target, including finding a hidden `/ftp` folder. Same idea as
-  step 1 to 3 above, with the room's own answers.
-- Run [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) locally and do
-  the same pass against it: `robots.txt`, the `/ftp` folder, the JavaScript
-  bundles, and the API paths in them.
+- **[TryHackMe: ffuf](https://tryhackme.com/room/ffuf)** (free): content discovery
+  against a live target, including a hidden `/ftp` folder.
+- [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) locally: the same
+  pass, for real. robots.txt, `/ftp`, the JavaScript bundles, the API paths.
 - The two labs on
   **[PortSwigger: Information disclosure](https://portswigger.net/web-security/information-disclosure)**
-  about leaking information through error messages and through `robots.txt` and
-  backup files.
+  about error messages, and about `robots.txt` and backup files.
 
-**Questions to answer in your notes:**
+**Questions for your notes:**
 
-- Why is `robots.txt` useful to an attacker, given it is only a request?
-- You found `/.git/HEAD` returns 200. What is the next step, and what could go
-  wrong if you skip it?
-- What is the difference between crawling and content discovery, and why do the
-  crawl first?
+- Why is `robots.txt` useful to an attacker when it is only a request?
+- You find `/.git/HEAD` returns 200. What is the next step, and the risk of
+  skipping it?
+- Why is an author name in a PDF a finding?
+- Why do the crawl before the content discovery?
 
 [Previous: Fingerprinting](04-fingerprinting.md) | [Session index](README.md) | [Next: Search engine discovery](06-search-engine-discovery.md)

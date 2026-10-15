@@ -1,19 +1,51 @@
+# The range needs nothing from your host except Docker.
+#
+#   docker compose up -d          start it
+#   docker compose down           stop it
+#   docker compose down && docker compose up -d    fresh flags
+#
+# The init service generates the zone and the site into ./generated, so there are
+# no host scripts to run and it behaves the same on Linux, macOS and Windows.
+
 services:
+  # Cross-platform dig. Windows has no dig, so this gives everyone the same
+  # command. It is in a profile, so `docker compose up -d` does not start it.
+  #   docker compose run --rm tools @dns recon.lab ANY
+  #   docker compose run --rm tools @dns AXFR recon.lab
+  tools:
+    image: internetsystemsconsortium/bind9:9.18
+    entrypoint: ["dig"]
+    profiles: ["tools"]
+
+  init:
+    image: alpine:3.20
+    volumes:
+      - ./generator/gen.sh:/gen.sh:ro
+      - ./generator/assets:/assets:ro
+      - ./generated:/out
+    command: ["/bin/sh", "/gen.sh"]
+    restart: "no"
+
   dns:
     image: coredns/coredns:1.11.3
     container_name: recon-dns
-    command: -conf /Corefile
+    command: -conf /zone/Corefile
+    depends_on:
+      init:
+        condition: service_completed_successfully
     ports:
       - "127.0.0.1:15353:53/udp"
       - "127.0.0.1:15353:53/tcp"
     volumes:
-      - ./generated/Corefile:/Corefile:ro
-      - ./generated/zone.recon.lab:/zones/zone.recon.lab:ro
+      - ./generated:/zone:ro
     restart: unless-stopped
 
   web:
     image: nginx:alpine
     container_name: recon-web
+    depends_on:
+      init:
+        condition: service_completed_successfully
     ports:
       - "127.0.0.1:8080:80"
     volumes:

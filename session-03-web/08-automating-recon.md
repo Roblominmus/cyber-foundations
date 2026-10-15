@@ -97,53 +97,107 @@ tools.
 
 ## Practise
 
-### On the range: automate the whole thing
+### Task: automate the range end to end
 
-The range has seven flags. Do not find them by hand this time. Write the pipeline
-and let it find them, then verify by hand only what the pipeline reports.
+The range has eight flags. Do not look for them by hand this time. Write the
+pipeline, let it find them, then verify only what it reports.
 
-Your target:
+Target details:
 
 - DNS on `127.0.0.1:15353`, zone `recon.lab`
 - Web on `127.0.0.1:8080`, with `Host` headers for the vhosts
+- The wordlist is `recon-range/wordlist.txt`
 
-Adapt the script from earlier in this page. Points to note:
+Subfinder and httpx expect real DNS and real hostnames, so against a lab you swap
+those stages for `dig` and `curl`. The stages are what matter, not the brands.
 
-- `subfinder` and `httpx` expect real DNS and hostnames. Against the range, use
-  `dig` with `-p 15353` in a loop for the DNS stage, and `curl -H "Host: ..."`
-  for the web stage. Do not be precious about the tools, the stages are what
-  matter.
-- The wordlist to brute force subdomains against the zone.
-- For the web stage, fuzz the `Host` header, not the path, to find the hidden
-  vhost.
-- For the content stage, run `ffuf` against the paths you found in `robots.txt`
-  and against a directory wordlist.
+**Linux or macOS version:**
 
-**Deliverable.** One script, `recon-range.sh`, that:
+```bash
+#!/usr/bin/env bash
+set -uo pipefail
+WL=recon-range/wordlist.txt
 
-1. Dumps the zone and prints every record type it found.
-2. Lists the names that resolve.
-3. Prints the response headers for each vhost it discovers.
-4. Runs a content discovery pass and prints anything that is not a 404.
-5. Prints every `FLAG{...}` string it saw, with the command that produced it.
+echo "[*] zone dump"
+dig @127.0.0.1 -p 15353 AXFR recon.lab | tee zone.txt
 
-Then answer:
+echo "[*] names that resolve"
+while read -r w; do
+  dig +short @127.0.0.1 -p 15353 "$w.recon.lab" A | grep -q . && echo "$w.recon.lab"
+done < "$WL" | sort -u | tee names.txt
 
-1. How many of the seven flags did your script find without you touching it?
-2. For each flag it missed, why did it miss it, and what would you add?
-3. Which stage of your pipeline produced the most findings?
+echo "[*] vhosts and headers"
+while read -r h; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: $h.recon.lab" http://127.0.0.1:8080/)
+  [ "$code" = "200" ] && echo "$h.recon.lab" && curl -s -D - -o /dev/null -H "Host: $h.recon.lab" http://127.0.0.1:8080/
+done < "$WL" | tee vhosts.txt
+
+echo "[*] content that is not a 404"
+for p in /robots.txt /sitemap.xml /.well-known/security.txt /.git/HEAD /.git/config \
+         /ftp/ /ftp/staff-passwords.txt /internal/notes.html /static/app.js \
+         /public/annual-report.pdf /backup/; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: www.recon.lab" "http://127.0.0.1:8080$p")
+  [ "$code" != "404" ] && echo "$code  $p"
+done | tee content.txt
+
+echo "[*] flags seen"
+grep -rho "FLAG{[^}]*}" . | sort -u
+```
+
+**Windows PowerShell version:**
+
+```powershell
+$wl   = "recon-range\wordlist.txt"
+$base = "http://127.0.0.1:8080"
+
+"--- zone dump"
+docker compose run --rm tools @dns AXFR recon.lab | Tee-Object zone.txt
+
+"--- names that resolve"
+Get-Content $wl | ForEach-Object {
+  $r = Resolve-DnsName -Server 127.0.0.1 -Port 15353 -Type A "$_.recon.lab" -ErrorAction SilentlyContinue
+  if ($r) { "$_.recon.lab" }
+} | Sort-Object -Unique | Tee-Object names.txt
+
+"--- vhosts"
+Get-Content $wl | ForEach-Object {
+  $c = curl.exe -s -o NUL -w "%{http_code}" -H "Host: $_.recon.lab" "$base/"
+  if ($c -eq "200") { "$_.recon.lab" }
+} | Sort-Object -Unique
+
+"--- content that is not a 404"
+$paths = "/robots.txt","/sitemap.xml","/.well-known/security.txt","/.git/HEAD",
+         "/.git/config","/ftp/","/ftp/staff-passwords.txt","/internal/notes.html",
+         "/static/app.js","/public/annual-report.pdf","/backup/"
+foreach ($p in $paths) {
+  $c = curl.exe -s -o NUL -w "%{http_code}" -H "Host: www.recon.lab" "$base$p"
+  if ($c -ne "404") { "{0}  {1}" -f $c, $p }
+} | Tee-Object content.txt
+
+"--- flags seen"
+Select-String -Path .\*.txt -Pattern "FLAG{[^}]*}" -AllMatches |
+  ForEach-Object { $_.Matches.Value } | Sort-Object -Unique
+```
+
+### Deliverable
+
+Save it as `recon-range.sh` or `recon-range.ps1`, then answer:
+
+1. How many of the eight flags did your script find without you touching it?
+2. For each one it missed, why did it miss it, and what would you add?
+3. Which stage produced the most findings?
 4. Why should `nuclei` still not be the first stage, even on your own range?
+5. Your script printed a lot of noise. Which filter removed the most of it?
 
 ### Room task
 
 **[TryHackMe: ffuf](https://tryhackme.com/room/ffuf)** (free) covers the content
-discovery stage properly, including how to filter output so it is readable. That
-filtering is the difference between a useful run and a wall of text.
+discovery stage properly, including how to filter output so it is readable.
 
-**Questions to answer in your notes:**
+**Questions for your notes:**
 
-- Why is the pipeline order names, then alive, then content, and not the reverse?
-- What breaks in your script if you point it at a domain you do not control?
-- Which part of the run would you still want a human to look at, and why?
+- Why is the order names, then alive, then content, and not the reverse?
+- What breaks if you point this at a domain you do not control?
+- Which part of the run would you still want a human to look at?
 
 [Previous: Web archives](07-web-archives.md) | [Session index](README.md) | [Next: Skills assessment](09-skills-assessment.md)

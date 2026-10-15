@@ -66,32 +66,80 @@ Search results change, so the date matters.
 
 ## Practise
 
-**Room task.** [TryHackMe: Search Skills](https://tryhackme.com/room/searchskills)
-(free). This is the room for this page. It covers search engines, operators and
-specialised search services, and it has questions with real answers. Do it
-properly, with the operators above in front of you.
+This page is all browser work. No tools, no operating system problems, and it
+works if you are reading this on GitHub with nothing installed. That is not a
+downgrade: this is genuinely how the technique is done.
 
-Then the search engine task inside
-[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)
-(free), which uses dorking against a target alongside the other passive
-techniques.
+### Task 1: learn the operators
 
-**Real world task.** Using operators only, and only against domains you are
-allowed to look at, try to find each of the following. If you cannot find one on
-your target, say so in your notes, because "searched and found nothing" is a
-finding too.
+Run every one of these against a domain you are allowed to look at, and write down
+what each one does to the result set. Note that Google is not the only engine;
+Bing and DuckDuckGo support most of these too, with slightly different syntax.
 
-1. A directory listing on the domain.
-2. Any file with an extension that should not be public: `sql`, `bak`, `old`,
-   `log`, `env`.
-3. A login or admin page that is not linked from the main site.
-4. A subdomain that the main site never mentions.
-5. A public document that looks internal.
+| Query | What you are looking for |
+|---|---|
+| `site:example.com` | Every indexed page on that domain |
+| `site:example.com -inurl:www` | Pages, excluding the main host, which hints at subdomains |
+| `site:example.com inurl:admin` | Admin panels |
+| `site:example.com inurl:login` | Login pages |
+| `site:example.com filetype:pdf` | Documents, which often leak more than pages |
+| `site:example.com (ext:sql OR ext:bak OR ext:old OR ext:env)` | Files that should not be public |
+| `intitle:"index of" site:example.com` | Directory listings |
+| `intext:"sql syntax near" site:example.com` | Verbose database errors |
+| `site:example.com inurl:api` | API endpoints |
 
-**Questions to answer in your notes:**
+### Task 2: the worksheet
+
+Against your chosen domain, try to find one of each. If you cannot find one, write
+that down too, because "searched and found nothing" is a result.
+
+| Target | Found? | The exact query that found it |
+|---|---|---|
+| A directory listing | | |
+| A file with an extension that should not be public | | |
+| A login or admin page not linked from the site | | |
+| A subdomain the main site never mentions | | |
+| A document that looks internal | | |
+| A page that reveals an error message | | |
+
+The query column is the point. On a report, "we found X" is weak. "We found X with
+this query, on this date, and here is the link" is a finding.
+
+### Task 3: the Google Hacking Database
+
+Browse the [Google Hacking Database](https://www.exploit-db.com/google-hacking-database)
+once. It is a categorised list of exactly these queries. Find three entries you
+would not have thought of, and try them against your domain.
+
+### Task 4: code search, in a browser
+
+Developers leak more than websites do.
+
+1. On GitHub, search your chosen organisation or project name together with
+   `password`, `api_key`, `secret`, or `BEGIN RSA PRIVATE KEY`.
+2. Use the code search operators: `org:`, `user:`, `path:`, `filename:`,
+   `language:`. For example `org:example filename:.env`.
+3. Note anything that looks like a real credential. Do not use it. The point is
+   that it was findable.
+
+Do not go looking at paste sites or leak forums. That may be illegal or against
+your agreement, and it is out of scope for this course unless a client puts it in
+writing.
+
+### Room task
+
+**[TryHackMe: Search Skills](https://tryhackme.com/room/searchskills)** (free) is
+the room for this page. Search engines, operators, and specialised search
+services, with questions and real answers. Do it with this page open.
+
+Then the search engine task in
+**[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
+(free), which does dorking against a target.
+
+**Questions for your notes:**
 
 - Why does a search engine show you a page that no longer exists on the target?
 - What does `site:` actually restrict, and what does it not?
-- Why should you record the date of every search result in a report?
+- Why should every finding record the date it was found?
 
 [Previous: Crawling](05-crawling.md) | [Session index](README.md) | [Next: Web archives](07-web-archives.md)
