@@ -18,21 +18,11 @@ session in the right sequence.
 | 09 | [Exercise 5: close the loop](09-exercise-close-the-loop.md) | Identify, then crack, all eight, using everything so far |
 | 10 | [Solutions](10-solutions.md) | Answers and exact commands. Read after you try |
 
-## Reading this on GitHub, or cloning it
+## How to use these pages
 
-Both work. You do not need to clone anything to do the exercises.
-
-**Reading on GitHub.** Every exercise page shows its hashes inline in a block you
-can copy, and includes a one line command that writes them into a file for you.
-Copy, paste, run. Nothing else needed.
-
-**Cloned.** The same hashes, the wordlist and the rule file are already in the
-`practice/` folder:
-
-```bash
-git clone https://github.com/Roblominmus/cyber-foundations
-cd cyber-foundations/session-04-password-attacks
-```
+Every exercise page shows the hashes it needs inline, in a block you can copy, and
+includes a one line command that writes them into a file for you. Copy, paste,
+run.
 
 ## What you need installed
 

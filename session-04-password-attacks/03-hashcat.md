@@ -85,7 +85,7 @@ exclamation mark, which turns `summer2026` into `Summer2026!`:
 c $!
 ```
 
-That file ships in `practice/rules/mutate.rule`.
+That file is written out in full in [Exercise 3](06-exercise-rules.md).
 
 ## Useful options
 

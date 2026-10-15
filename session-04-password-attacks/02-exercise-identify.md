@@ -24,7 +24,7 @@ $6$xed9MnrsV1OykP0v$yPFTLP22V73m30f7SKBU.2TPqVonr.EPWwFGxF7YN.NKjhg/OROTKFAHGI4e
 $2b$12$kJlKr9L4o7tdNy4blVFzTeIe1YHsJai5M/z00pN9wsU2YTTQSu.vW
 ```
 
-If you want them as a file, this writes them, whether or not you cloned the repo:
+If you want them as a file, this writes one for you:
 
 ```bash
 cat > unknown.txt <<'EOF'

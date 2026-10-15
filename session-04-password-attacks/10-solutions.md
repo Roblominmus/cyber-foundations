@@ -2,7 +2,7 @@
 
 [Previous: Exercise 5: close the loop](09-exercise-close-the-loop.md) | [Session index](README.md)
 
-How these hashes were made: every hash in `practice/` was generated from the
+How these hashes were made: every hash in these exercises was generated from the
 plaintexts listed on this page. The answers are known by construction, so nobody
 had to crack anything to write this file. That also means if a hash here does
 not crack for you, the problem is your mode, your wordlist or your rule, not the

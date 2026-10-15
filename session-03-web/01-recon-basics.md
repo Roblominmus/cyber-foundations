@@ -92,18 +92,7 @@ reach for the right one.
 
 ## Practise
 
-There is no hosted lab for this module, on purpose. Here is why, because it is
-worth knowing.
-
-HTB's own version of this module splits its assessment in two: the WHOIS question
-runs against a real public domain they own, and everything else runs against a
-container on a lab network that students reach through their hosts file. Nobody,
-including HTB, does the whole thing against one free public target. A real domain
-has WHOIS, DNS and certificate transparency but no planted leaks, and a lab
-container has the planted leaks but no WHOIS and no certificate log.
-
-So the practice here is two things that both work, need nothing installed, and
-cost nothing:
+Two kinds of practice, both free, and neither needs anything installed:
 
 1. **The free rooms**, which have their own targets and real answers you can check.
 2. **Passive reading of real domains you are allowed to look at**, for the
