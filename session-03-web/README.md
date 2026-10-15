@@ -26,11 +26,28 @@ room that is free, or to a real target, where you get a real answer you can chec
 
 ## Practice targets used here
 
-All of these are free. None of the answers are printed in this repo, because the
-answers belong to the room or the lab. Get the flag or the pass yourself.
+All of these are free. None of the answers are printed in this repo. Where the
+answer belongs to a room, get the flag yourself. Where it belongs to the range
+below, the flags are generated fresh on every run.
+
+### The recon range, run it first
+
+[`recon-range/`](recon-range/README.md) is a small target you start on your own
+machine with one command. It plants **seven flags**, one per technique, and it is
+the only free thing here that lets you practise a zone transfer, vhost discovery
+and crawling a genuinely messy site.
+
+```bash
+cd recon-range && ./up.sh
+```
+
+Pages 03, 04, 05 and 08 are built around it. The rooms below cover the techniques
+the range cannot, which is anything that needs the real internet: WHOIS,
+certificate transparency, search engines and archives.
 
 | Target | What it is good for |
 |---|---|
+| **[The recon range](recon-range/README.md)** | DNS records, zone transfer, subdomains, vhosts, fingerprinting, crawling, automation. Seven flags |
 | [TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon) | WHOIS, DNS, certificate transparency, Shodan, dorks |
 | [TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon) | Ping, traceroute, netcat, curl, banner grabbing |
 | [TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail) | Every DNS record type, with questions |

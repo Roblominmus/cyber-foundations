@@ -1,0 +1,23 @@
+services:
+  dns:
+    image: coredns/coredns:1.11.3
+    container_name: recon-dns
+    command: -conf /Corefile
+    ports:
+      - "127.0.0.1:15353:53/udp"
+      - "127.0.0.1:15353:53/tcp"
+    volumes:
+      - ./generated/Corefile:/Corefile:ro
+      - ./generated/zone.recon.lab:/zones/zone.recon.lab:ro
+    restart: unless-stopped
+
+  web:
+    image: nginx:alpine
+    container_name: recon-web
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./generated/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./generated/web:/usr/share/nginx/html:ro
+      - ./generated/portal:/usr/share/nginx/html-portal:ro
+    restart: unless-stopped

@@ -89,27 +89,69 @@ Confirm the version first.
 
 ## Practise
 
-**Room task.** [TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)
-(free). The room has you use `curl`, browser developer tools and netcat against a
-target, and asks you to note what the responses tell you. Pay attention to the
-questions about headers, they are exactly this page.
+### On the range: headers, flag 7
 
-**Real world task.** Pick three sites you are allowed to look at, ideally ones you
-expect to differ: a large company, a small business, and a hobby or personal site.
+With the range up, ask the web server who it is:
 
-For each, record:
+```bash
+curl -s -D - -o /dev/null -H "Host: www.recon.lab" http://127.0.0.1:8080/
+```
 
-1. The full `Server` header.
-2. Any `X-Powered-By` or similar.
-3. The session cookie names, and what language or framework they suggest.
-4. What `whatweb --aggression 1` reports.
-5. Whether a CDN is in front, and how you can tell.
-6. The exact version numbers you can find, and whether they are current.
+1. What web server and version does the `Server` header name?
+2. What does `X-Powered-By` claim, and what does that tell you about the app?
+3. Are either of those versions real things you could search for? What would you
+   do next with them on a real target?
+
+### On the range: find the hidden virtual host
+
+Unknown hostnames return 404, so you have a baseline to filter against. Fuzz the
+`Host` header to see which names the server actually knows:
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+     -u http://127.0.0.1:8080/ -H "Host: FUZZ.recon.lab" -fs 153
+```
+
+`-fs 153` throws away the 404 responses by size, so only the real hosts survive.
+You should see the main site twice and one host that is different.
+
+On that host, look at the headers:
+
+```bash
+curl -s -D - -o /dev/null -H "Host: portal.recon.lab" http://127.0.0.1:8080/
+```
+
+**Flag 7** is in a response header that only that virtual host sends. That is the
+lesson: the same IP serves several sites, and one of them has something the others
+do not.
+
+### Room task
+
+**[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**
+(free). Chrome developer tools, `curl`, and netcat against a target, with questions
+about what the responses tell you. The header questions there are exactly this
+page, on a real host.
+
+### Real world task
+
+Three sites you are allowed to look at: a large company, a small business, and a
+personal or hobby site. Fill this in for each and compare.
+
+| | Large company | Small business | Personal site |
+|---|---|---|---|
+| `Server` header | | | |
+| `X-Powered-By` or similar | | | |
+| Session cookie name, and what it implies | | | |
+| CDN in front, and how you can tell | | | |
+| Version numbers you can pin down | | | |
+| What `whatweb --aggression 1` adds | | | |
 
 **Questions to answer in your notes:**
 
-- Which of the three gave away the most, and why might that be?
-- Why is a CDN header bad news for fingerprinting, and what would you do instead?
+- Which site gave away the most, and why might that be?
+- A CDN header hides the origin. What would you do instead of fingerprinting the
+  headers?
 - You see `PHPSESSID`. What do you now know, and what do you still not know?
+- Why is a version number more useful than a product name?
 
 [Previous: DNS and subdomains](03-dns-and-subdomains.md) | [Session index](README.md) | [Next: Crawling](05-crawling.md)

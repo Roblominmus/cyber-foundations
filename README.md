@@ -36,7 +36,7 @@ these pages.
 |---|---|---|
 | 03 | Web recon, and the OWASP Top 10 list | [session-03-web](session-03-web/README.md) |
 | 04 | Password attacks | [session-04-password-attacks](session-04-password-attacks/README.md) |
-| 04 | Privilege escalation, theory half | [session-04-privilege-escalation](session-04-privilege-escalation/README.md) |
+| 04 | Windows privilege escalation, theory half | [session-04-windows-privesc](session-04-windows-privesc/README.md) |
 
 ## Licence and use
 

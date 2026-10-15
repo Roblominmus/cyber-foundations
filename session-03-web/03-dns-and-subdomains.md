@@ -129,34 +129,100 @@ the ones that differ. Without it the output is unreadable.
 
 ## Practise
 
-**Room task 1.** [TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail)
-(free). This room walks every record type and asks questions about them. Do it
-before the rest, it is the foundation.
+### On the range: DNS records, flag 1 and flag 2
 
-**Room task 2.** The DNS and certificate transparency tasks in
-[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)
-(free). The room uses DNSDumpster and certificate logs against a target and asks
-for specific findings.
+Start the range first: `cd recon-range && ./up.sh`. The DNS server answers on port
+15353, so every query needs `-p 15353`.
 
-**Real world task.** For a domain you are allowed to investigate:
+```bash
+# the whole zone in one go
+dig @127.0.0.1 -p 15353 recon.lab ANY
 
-1. List every `A`, `MX`, `NS` and `TXT` record. Note anything interesting in TXT,
-   such as SPF records or verification tokens.
-2. Pull the certificate transparency log for `%.that-domain` and collect every
-   unique name. How many did you get that are not the main site?
-3. Run `subfinder` against it and compare with the certificate list. Which found
-   more, and why?
-4. Probe everything with `httpx` and note any that answer with a login page, a
-   directory listing, or a non production looking name.
-5. Try a zone transfer against each name server. Record whether it is refused.
-   A refusal is the correct answer and worth noting as such.
+# or one type at a time
+dig +short @127.0.0.1 -p 15353 recon.lab MX
+dig +short @127.0.0.1 -p 15353 recon.lab NS
+dig +short @127.0.0.1 -p 15353 recon.lab TXT
+```
+
+1. **Flag 1** is in the TXT record on the zone. Read it and write it down.
+2. The zone also holds a name that no wordlist will guess. Stop guessing and ask
+   for everything:
+
+```bash
+dig @127.0.0.1 -p 15353 AXFR recon.lab
+```
+
+3. **Flag 2** is in the TXT record of that hidden name. Notice what just happened:
+   one query returned every record in the zone, including names you could not have
+   guessed. That is exactly why an open zone transfer is a finding, not a
+   convenience.
+4. Count the names the transfer gave you, then count how many of them a wordlist
+   would have found. Write both numbers down.
+
+### On the range: subdomains against the DNS
+
+```bash
+# the names that resolve
+for n in www dev portal mail ns1 legacy-backup; do
+  printf '%-16s ' "$n"; dig +short @127.0.0.1 -p 15353 "$n.recon.lab" A
+done
+
+# brute force, small list, this is slow on purpose
+head -200 /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt | \
+while read -r w; do
+  dig +short @127.0.0.1 -p 15353 "$w.recon.lab" A | grep -q . && echo "found: $w.recon.lab"
+done
+```
+
+Compare what brute force found with what the zone transfer found. The gap between
+those two lists is the whole argument for checking AXFR first.
+
+### On the range: subdomain is not virtual host
+
+`portal` resolves in DNS, but the web server decides which site to serve from the
+`Host` header alone, with no DNS involved:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' -H "Host: www.recon.lab"    http://127.0.0.1:8080/
+curl -s -o /dev/null -w '%{http_code}\n' -H "Host: portal.recon.lab" http://127.0.0.1:8080/
+curl -s -o /dev/null -w '%{http_code}\n' -H "Host: nope.recon.lab"   http://127.0.0.1:8080/
+```
+
+The third one returns 404 while the first two return 200. That baseline is what
+makes vhost fuzzing possible, and it is how you will find flag 7 on the next page.
+
+### Room tasks
+
+- **[TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail)** (free).
+  Every record type, with questions about each. Do this one first, it is the
+  foundation for everything else here.
+- The DNS and certificate transparency tasks in
+  **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
+  (free). The same techniques against a real domain, with the room's own answers.
+  Certificate transparency is the part the range cannot teach you, because it needs
+  a real certificate log.
+
+### Real world task
+
+Against a domain you are allowed to investigate. Fill in the table, do not write
+an essay:
+
+| What | Your answer |
+|---|---|
+| A record for the apex | |
+| MX, and which mail provider it implies | |
+| NS, and who runs them | |
+| Anything interesting in the TXT records | |
+| Names found via certificate transparency | |
+| Names found via subfinder | |
+| Which source found more, and why | |
+| Did a zone transfer work, and should it have | |
 
 **Questions to answer in your notes:**
 
-- What is the difference between a subdomain and a virtual host, and why does the
-  distinction change how you enumerate?
-- Why are certificate transparency logs so effective at finding subdomains that
-  brute force misses?
+- Why did the zone transfer give you names that brute force missed?
+- Why does `nope.recon.lab` returning 404 matter for vhost fuzzing?
+- What is the difference between a subdomain and a virtual host?
 - Which record type would you check first to find a company's mail provider?
 
 [Previous: WHOIS](02-whois.md) | [Session index](README.md) | [Next: Fingerprinting](04-fingerprinting.md)

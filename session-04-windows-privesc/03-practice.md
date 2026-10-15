@@ -1,6 +1,6 @@
-# 03: Practice
+# 03: Practice on the free rooms
 
-[Previous: Techniques](02-techniques.md) | [Session index](README.md)
+[Previous: Windows privesc techniques](02-techniques.md) | [Session index](README.md)
 
 The rooms give you a machine that is already broken in several ways. They do not
 tell you how, and they do not teach the techniques. That is the correct division of
@@ -93,4 +93,4 @@ The "ruled out" part is worth as much as the win. On a real job you will not alw
 get to the top, and the report has to show what you checked and why it did not
 work.
 
-[Previous: Techniques](02-techniques.md) | [Session index](README.md)
+[Previous: Windows privesc techniques](02-techniques.md) | [Session index](README.md)

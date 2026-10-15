@@ -97,27 +97,53 @@ tools.
 
 ## Practise
 
-**Task.** Run the pipeline above against a domain you have permission to test. If
-you do not have one, use the domain of a site you own, or set up
-[OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) locally and run the
-content discovery stages against `127.0.0.1`.
+### On the range: automate the whole thing
 
-Then do the room:
+The range has seven flags. Do not find them by hand this time. Write the pipeline
+and let it find them, then verify by hand only what the pipeline reports.
 
-[TryHackMe: ffuf](https://tryhackme.com/room/ffuf) (free) covers the content
-discovery stage properly, including how to filter the output so it is readable.
-That filtering is the difference between a useful run and a wall of text.
+Your target:
+
+- DNS on `127.0.0.1:15353`, zone `recon.lab`
+- Web on `127.0.0.1:8080`, with `Host` headers for the vhosts
+
+Adapt the script from earlier in this page. Points to note:
+
+- `subfinder` and `httpx` expect real DNS and hostnames. Against the range, use
+  `dig` with `-p 15353` in a loop for the DNS stage, and `curl -H "Host: ..."`
+  for the web stage. Do not be precious about the tools, the stages are what
+  matter.
+- The wordlist to brute force subdomains against the zone.
+- For the web stage, fuzz the `Host` header, not the path, to find the hidden
+  vhost.
+- For the content stage, run `ffuf` against the paths you found in `robots.txt`
+  and against a directory wordlist.
+
+**Deliverable.** One script, `recon-range.sh`, that:
+
+1. Dumps the zone and prints every record type it found.
+2. Lists the names that resolve.
+3. Prints the response headers for each vhost it discovers.
+4. Runs a content discovery pass and prints anything that is not a 404.
+5. Prints every `FLAG{...}` string it saw, with the command that produced it.
+
+Then answer:
+
+1. How many of the seven flags did your script find without you touching it?
+2. For each flag it missed, why did it miss it, and what would you add?
+3. Which stage of your pipeline produced the most findings?
+4. Why should `nuclei` still not be the first stage, even on your own range?
+
+### Room task
+
+**[TryHackMe: ffuf](https://tryhackme.com/room/ffuf)** (free) covers the content
+discovery stage properly, including how to filter output so it is readable. That
+filtering is the difference between a useful run and a wall of text.
 
 **Questions to answer in your notes:**
 
-1. Why is `nuclei` the last stage and not the first?
-2. What happens to your results if you scan a host list that includes a third
-   party's domain?
-3. Which single stage of the pipeline found the most that you would not have found
-   by hand?
-
-**Deliverable for this page:** your script, and one run's output folder, committed
-to your own notes. Not to this repo. This repo has no place to put your results,
-and your findings from a real target should not be published.
+- Why is the pipeline order names, then alive, then content, and not the reverse?
+- What breaks in your script if you point it at a domain you do not control?
+- Which part of the run would you still want a human to look at, and why?
 
 [Previous: Web archives](07-web-archives.md) | [Session index](README.md) | [Next: Skills assessment](09-skills-assessment.md)

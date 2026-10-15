@@ -1,6 +1,6 @@
-# 01: Enumeration
+# 01: Windows enumeration
 
-[Session index](README.md) | [Next: Techniques](02-techniques.md)
+[Session index](README.md) | [Next: Windows privesc techniques](02-techniques.md)
 
 ## The rule
 
@@ -165,4 +165,4 @@ You cannot practise enumeration without a box. Go to
 page against it before you read the techniques. Then come back to
 [Techniques](02-techniques.md) with real output in front of you.
 
-[Session index](README.md) | [Next: Techniques](02-techniques.md)
+[Session index](README.md) | [Next: Windows privesc techniques](02-techniques.md)

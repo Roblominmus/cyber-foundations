@@ -92,8 +92,17 @@ reach for the right one.
 
 ## Practise
 
-Do the passive half first, properly, before you touch anything active. Two rooms,
-both free, both with real answers you have to find:
+First, start the practice target, because you will use it from page 03 onwards:
+
+```bash
+cd recon-range && ./up.sh
+```
+
+That is a small DNS and web server on your own machine with seven flags planted in
+it. Leave it running.
+
+Then do the passive half, properly, before you touch anything active on a real
+domain. Two rooms, both free, both with real answers you have to find:
 
 1. **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**.
    Work through it and answer every question. This covers WHOIS, DNS lookups,

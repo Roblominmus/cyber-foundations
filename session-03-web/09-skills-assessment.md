@@ -5,7 +5,38 @@
 No new techniques here. This is the page where you do all of it against a target
 that has real answers, and write it up.
 
-## Part 1: the OSINT investigation
+## Part 1: the range, all seven flags
+
+Start the range and collect every flag. This part is timed.
+
+```bash
+cd recon-range && ./up.sh
+```
+
+Rules:
+
+- Time yourself, and note the time when you get the seventh flag.
+- Any tool is allowed. You may not open `generated/`. If you do, you have not done
+  the exercise.
+- Record the exact command that produced each flag, not just the flag.
+
+| Flag | Technique | Command that produced it |
+|---|---|---|
+| 1 | | |
+| 2 | | |
+| 3 | | |
+| 4 | | |
+| 5 | | |
+| 6 | | |
+| 7 | | |
+
+The command column is the point. A flag with no command behind it is a guess, and
+on a real job a finding with no evidence is not a finding.
+
+Aim to be under 30 minutes with this module open. If it took much longer, write
+down which flag cost you the most time and why.
+
+## Part 2: the OSINT investigation
 
 [TryHackMe: OhSINT](https://tryhackme.com/room/ohsint) (free) gives you a single
 image and asks you to find out everything about the person behind it. It has real
@@ -28,7 +59,7 @@ answer, not just the answer.
 looking for a writeup until you have spent a real hour on it. When you are stuck,
 the useful move is to re-read your own notes and ask what you have not tried yet.
 
-## Part 2: recon against a real application
+## Part 3: recon against a real application
 
 Run [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) locally:
 
@@ -56,7 +87,7 @@ Work through this list and write down each answer:
    anything interesting. Do not run it fast, it is your own machine but the habit
    matters.
 
-## Part 3: the write up
+## Part 4: the write up
 
 This is the deliverable, and it is the point of the whole module. A recon report,
 one page, with these sections:

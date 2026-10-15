@@ -1,6 +1,6 @@
-# 02: Techniques
+# 02: Windows privilege escalation techniques
 
-[Previous: Enumeration](01-enumeration.md) | [Session index](README.md) | [Next: Practice](03-practice.md)
+[Previous: Windows enumeration](01-enumeration.md) | [Session index](README.md) | [Next: Practice on the free rooms](03-practice.md)
 
 Each technique below has the same three parts: how to spot it, how to exploit it,
 and how it is fixed. Learn the spotting part hardest, because a box gives you no
@@ -287,4 +287,4 @@ Run `winPEAS` alongside, but treat it as a second opinion, not the first.
 Every technique here appears in the rooms in [Practice](03-practice.md).
 Take the priority list above with you and work it in that order.
 
-[Previous: Enumeration](01-enumeration.md) | [Session index](README.md) | [Next: Practice](03-practice.md)
+[Previous: Windows enumeration](01-enumeration.md) | [Session index](README.md) | [Next: Practice on the free rooms](03-practice.md)

@@ -113,33 +113,89 @@ URLs lead to new URLs.
 
 ## Practise
 
-**Room task 1.** [TryHackMe: ffuf](https://tryhackme.com/room/ffuf) (free). This
-room uses `ffuf` for content discovery against a live target, and one of the tasks
-is finding a hidden `/ftp` folder and its contents. That is this page plus page 08,
-and the room has real answers to find.
+### On the range: robots.txt, flags 3, 4 and 5
 
-**Room task 2.** Run [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/)
-locally, then:
+With the range up, read what it does not want crawled:
 
-1. Read `robots.txt` and note every disallowed path. One of them is the `/ftp`
-   folder with a file listing in it.
-2. Fetch the main page and list every JavaScript file.
-3. Grep one of the bundles for `/rest/` and similar path patterns. Juice Shop
-   puts its API on display this way, and you will find endpoints the UI never
-   offers you.
-4. Look for an exposed backup or log file in `/ftp`.
+```bash
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/robots.txt
+```
 
-**Lab task.** [PortSwigger: Information disclosure](https://portswigger.net/web-security/information-disclosure)
-(free labs). Do the labs on leaking information through error messages and on
-`robots.txt` and backup files. They are short and they are exactly the "leaks"
-category from page 01.
+1. Every `Disallow` is a path somebody did not want indexed. Fetch each one
+   directly, because a request is not a control:
+
+```bash
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/ftp/
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/internal/
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/backup/
+```
+
+2. The directory listing you get is already a finding. Inside one of these
+   directories is a file of staff passwords. **Flag 4** is in it. Name the other
+   file you found there as well and say what it leaks.
+3. **Flag 5** is on a page inside another disallowed directory.
+4. Work out which of the three disallowed paths gave you something and which gave
+   you nothing, and write that down. A path that returns 404 is still worth
+   recording as "checked".
+
+### On the range: source and JavaScript, flags 3 and 6
+
+Crawling is not only paths. Read what the pages hand you.
+
+```bash
+# the site links to two pages, fetch both and read the raw source
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/ | grep -oE 'href="[^"]+"|src="[^"]+"'
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/about.html | grep -i '<!--'
+```
+
+5. **Flag 3** is in an HTML comment on one of those pages. Developers leave notes,
+   and notes ship.
+6. Now the JavaScript:
+
+```bash
+curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/static/app.js
+```
+
+7. List every API endpoint the bundle names. How many of them does the user
+   interface actually link to?
+8. **Flag 6** is a key in that file. On a real target, a key in a client side
+   bundle is a finding on its own, because anyone can read it.
+
+### On the range: the well-known pass
+
+Do not forget the fixed paths. Run all of these and record which return anything
+other than 404:
+
+```bash
+for p in /.well-known/security.txt /.git/HEAD /.env /.DS_Store /backup.zip \
+         /phpinfo.php /server-status /swagger.json /openapi.json /actuator; do
+  code=$(curl -s -o /dev/null -w '%{http_code}' -H "Host: www.recon.lab" "http://127.0.0.1:8080$p")
+  printf '%-28s %s\n' "$p" "$code"
+done
+```
+
+Two of them return something. One is a legitimate contact file. The other is a
+serious finding on a real target: explain what an attacker does with it.
+
+### Room and lab tasks
+
+- **[TryHackMe: ffuf](https://tryhackme.com/room/ffuf)** (free). Content discovery
+  against a live target, including finding a hidden `/ftp` folder. Same idea as
+  step 1 to 3 above, with the room's own answers.
+- Run [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) locally and do
+  the same pass against it: `robots.txt`, the `/ftp` folder, the JavaScript
+  bundles, and the API paths in them.
+- The two labs on
+  **[PortSwigger: Information disclosure](https://portswigger.net/web-security/information-disclosure)**
+  about leaking information through error messages and through `robots.txt` and
+  backup files.
 
 **Questions to answer in your notes:**
 
 - Why is `robots.txt` useful to an attacker, given it is only a request?
+- You found `/.git/HEAD` returns 200. What is the next step, and what could go
+  wrong if you skip it?
 - What is the difference between crawling and content discovery, and why do the
   crawl first?
-- You find `/.git/HEAD` returns 200. What is your next step, and what could go
-  wrong if you skip it?
 
 [Previous: Fingerprinting](04-fingerprinting.md) | [Session index](README.md) | [Next: Search engine discovery](06-search-engine-discovery.md)
