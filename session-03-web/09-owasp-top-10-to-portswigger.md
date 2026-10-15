@@ -1,6 +1,6 @@
 # 10: OWASP Top 10 to PortSwigger
 
-[Previous: Skills assessment](09-skills-assessment.md) | [Session index](README.md)
+[Previous: Automating recon](08-automating-recon.md) | [Session index](README.md)
 
 ## Why this page exists
 
@@ -89,4 +89,4 @@ categories move, items get added and merged, and the code you meet in the wild w
 not announce which version it is. Learn the mechanism of each flaw, not the number
 in front of it. The number is just an index for the report.
 
-[Previous: Skills assessment](09-skills-assessment.md) | [Session index](README.md)
+[Previous: Automating recon](08-automating-recon.md) | [Session index](README.md)

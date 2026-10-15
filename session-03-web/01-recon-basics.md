@@ -92,54 +92,64 @@ reach for the right one.
 
 ## Practise
 
-Nothing to install on this page or any page in this module. Everything is a
-browser, plus the free rooms. It works on Windows, macOS and Linux, and it works
-if you are reading this on GitHub.
+There is no hosted lab for this module, on purpose. Here is why, because it is
+worth knowing.
 
-### Your practice target
+HTB's own version of this module splits its assessment in two: the WHOIS question
+runs against a real public domain they own, and everything else runs against a
+container on a lab network that students reach through their hosts file. Nobody,
+including HTB, does the whole thing against one free public target. A real domain
+has WHOIS, DNS and certificate transparency but no planted leaks, and a lab
+container has the planted leaks but no WHOIS and no certificate log.
 
-Open [demo.testfire.net](http://demo.testfire.net/) in a browser. It is IBM's
-deliberately vulnerable banking application, published so people can practise on
-it. From here on, this is your target unless a task says otherwise.
+So the practice here is two things that both work, need nothing installed, and
+cost nothing:
 
-Two more worth knowing:
+1. **The free rooms**, which have their own targets and real answers you can check.
+2. **Passive reading of real domains you are allowed to look at**, for the
+   techniques that only exist on the real internet: WHOIS, DNS, certificate
+   transparency, search engines, archives.
 
-- [scanme.nmap.org](http://scanme.nmap.org/), Nmap's own scan target, published
-  for exactly this purpose
-- [public-firing-range.appspot.com](https://public-firing-range.appspot.com/),
-  Google's Firing Range, built for practising scanners
+### The rooms
 
-These are shared public hosts. Browse them, read them, run the light checks in
-this module. Do not brute force them. The rooms are where you get to be
-aggressive.
+All free, browser and a free account is all you need:
 
-### The two passive rooms
+| Room | Covers | Pages |
+|---|---|---|
+| [Passive Reconnaissance](https://tryhackme.com/room/passiverecon) | WHOIS, DNS, certificate transparency, Shodan, dorks | 02, 03, 06, 07 |
+| [Active Reconnaissance](https://tryhackme.com/room/activerecon) | Ping, traceroute, netcat, curl, headers | 04 |
+| [DNS in Detail](https://tryhackme.com/room/dnsindetail) | Every DNS record type | 03 |
+| [Search Skills](https://tryhackme.com/room/searchskills) | Search engines and dorking | 06 |
+| [ffuf](https://tryhackme.com/room/ffuf) | Content discovery, with a hidden `/ftp` find | 05 |
 
-Both free, both need only a browser and a free account:
+These are the graded practice. They have answers, so you can tell whether you got
+it right, and someone else maintains the target.
 
-1. **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**.
-   WHOIS, DNS, certificate transparency, Shodan and search engines. This covers
-   pages 02, 03, 06 and 07. Answer every question in it.
-2. **[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**.
-   Ping, traceroute, netcat and curl. The active half, and it feeds page 04.
+### Passive reading, for the real-internet techniques
+
+Pick one domain you are allowed to look at and keep it for the whole module. A
+company site, a project of your own, a site a friend runs. You never touch it, you
+only read what it publishes: WHOIS, DNS records, certificate logs, search results,
+archive snapshots.
+
+That is genuinely all the practice that WHOIS, certificate transparency, dorks and
+archives need. Those techniques are passive by nature.
 
 ### Keep a notes file from the first minute
 
-One file per target. For every finding, the command or the click that produced it,
-and the output. This is the real deliverable of the module.
+One file per target, and for every finding, the command or the click plus the
+output.
 
 ```
-TARGET: demo.testfire.net
+TARGET: <domain>
 --- names and infra
-- 65.x.x.x        resolves for demo.testfire.net
+- name servers      who.is
 --- tech
-- Server header   from devtools, Network tab
---- entry points
-- /login.jsp      linked from the home page
+- Server header     DevTools, Network tab
 --- leaks
-- robots.txt      disallows nothing useful, recorded anyway
+- robots.txt        disallow: <path>
 --- findings
-- no HTTPS on the login form, meaning credentials cross in clear text
+- <what it is, what it means, how it would be fixed>
 ```
 
 The last block is the point. A finding with no evidence is not a finding.

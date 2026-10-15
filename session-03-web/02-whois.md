@@ -74,8 +74,8 @@ status are still there, and those are usually enough to move on.
 
 ## Practise
 
-WHOIS is a browser task. It works on any operating system and needs nothing
-installed.
+WHOIS is a browser task and always has been. Nothing to install, and it works on
+any operating system.
 
 ### Task 1: WHOIS by hand
 
@@ -85,7 +85,7 @@ Look each up at [who.is](https://who.is) or
 
 | What | Large company | Small site |
 |---|---|---|
-| Registrar | | |
+| Registrar, and the IANA ID | | |
 | Created | | |
 | Expires | | |
 | Name servers, and who runs them | | |
@@ -95,32 +95,31 @@ Look each up at [who.is](https://who.is) or
 1. Which of the two gives away more, and why?
 2. Is the registrant redacted? What did you still get, and is it enough to keep
    going?
+3. The IANA ID identifies the registrar as an organisation. Why is that a better
+   answer to record than the registrar's name?
 
 If you do have a terminal, `whois example.com` on Linux or macOS does the same
-thing. Windows has no `whois` command, so use the browser service. There is no
-need to install anything for this page.
+thing. Windows has no `whois` command, so use the browser service. There is
+nothing to install for this page.
 
-### Task 2: harvest email addresses from your target
+### Task 2: harvest email addresses
 
-Open [demo.testfire.net](http://demo.testfire.net/) and walk the site the way a
-visitor would. Contact pages, about pages, the footer, terms pages.
+Pick any organisation site you are allowed to read. Walk it the way a visitor
+would: contact page, about page, footer, terms, press.
 
-1. List every email address you find.
-2. Work out the naming pattern from them.
-3. Predict the address for two plausible employees.
-4. Say what an attacker does with a confirmed address pattern plus a list of
-   names. One sentence.
+1. List every email address you find on the rendered pages.
+2. Now view the source of the same pages and search for `mailto:`. Some addresses
+   are in the HTML but never rendered. How many extra did that get you?
+3. Work out the naming pattern, and predict two more addresses.
+4. Say in one sentence what an attacker does with a confirmed pattern plus a list
+   of names.
 
-### Task 3: read the same information from the source
-
-In the browser, view the page source of the contact page. Search it for `mailto:`.
-Some addresses are never rendered on screen but are still in the HTML.
-
-### Room task
+### Task 3: the room
 
 The WHOIS tasks in
 **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
-(free). Same technique, real domain, with the room's own answers to check against.
+(free). Same technique against the room's target, with real answers to check
+yourself against.
 
 **Questions for your notes:**
 

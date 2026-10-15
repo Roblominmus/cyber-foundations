@@ -89,16 +89,21 @@ Confirm the version first.
 
 ## Practise
 
-### Task 1: read the headers in the browser, no tools
+No lab needed. Reading a public site's own headers is passive, legal and needs
+nothing installed.
 
-1. Open [demo.testfire.net](http://demo.testfire.net/).
-2. Open developer tools, then the Network tab, then reload the page.
+### Task 1: read the headers
+
+Pick a site you are allowed to look at.
+
+1. Open it in a browser.
+2. Open developer tools, then the Network tab, then reload.
 3. Click the first request for the page itself, not an image.
 4. Read the response headers.
 
 Record:
 
-| Header | Your target's value | What it tells you |
+| Header | Value | What it tells you |
 |---|---|---|
 | `Server` | | Web server and version |
 | `X-Powered-By` | | Language or framework |
@@ -107,33 +112,20 @@ Record:
 
 1. What web server and version is it?
 2. What do the cookie names suggest about the language?
-3. Is anything in front of the origin?
+3. Is a CDN in front? How can you tell?
 
 **Optional, if you have a terminal.** `curl` ships with Windows 10 and later,
-macOS and Linux, so this needs no install:
+macOS and Linux:
 
 ```bash
-curl -I http://demo.testfire.net/
+curl -I https://example.com
 ```
 
 On Windows use `curl.exe` if plain `curl` opens something else.
 
-### Task 2: version detection against a host meant for it
+### Task 2: compare three sites
 
-[scanme.nmap.org](http://scanme.nmap.org/) is Nmap's own target, published so
-people can practise scanning it. If you have `nmap`, this is authorised and
-expected:
-
-```bash
-nmap -sV scanme.nmap.org
-```
-
-If you do not have nmap, skip it. The browser tasks below cover the same idea.
-
-### Task 3: compare three sites
-
-Three sites you are allowed to look at: a large company, a small business, and a
-personal site. Do step 1 for each and fill this in.
+Do Task 1 for a large company, a small business, and a personal or hobby site.
 
 | | Large company | Small business | Personal site |
 |---|---|---|---|
@@ -143,11 +135,15 @@ personal site. Do step 1 for each and fill this in.
 | CDN in front, and how you know | | | |
 | Versions you can pin down | | | |
 
-### Room task
+### Task 3: the room
 
 **[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**
-(free). The header and curl questions there are exactly this page, on a real host,
-with real answers.
+(free). It has a target, so you get ping, traceroute, netcat and `curl` against a
+real host, with questions and real answers. The header questions there are exactly
+this page.
+
+That room is also the closest thing to a browser-based version of `nmap -sV`, if
+you want version detection against something that is meant to be probed.
 
 **Questions for your notes:**
 

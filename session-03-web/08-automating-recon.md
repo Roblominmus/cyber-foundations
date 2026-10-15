@@ -1,6 +1,6 @@
 # 08: Automating recon
 
-[Previous: Web archives](07-web-archives.md) | [Session index](README.md) | [Next: Skills assessment](09-skills-assessment.md)
+[Previous: Web archives](07-web-archives.md) | [Session index](README.md) | [Next: OWASP Top 10 to PortSwigger](09-owasp-top-10-to-portswigger.md)
 
 ## Why automate
 
@@ -97,8 +97,8 @@ tools.
 
 ## Practise
 
-Automation needs tools, so this is the one page where a terminal helps. But the
-thinking is the exercise, and you can do that anywhere.
+Automation needs tools, so this is the one page where a terminal genuinely helps.
+The thinking is the exercise, and you can do that anywhere.
 
 ### Task 1: write the pipeline, in order
 
@@ -108,7 +108,7 @@ pages, and name the free tool that does it.
 | Stage | What it produces | Tool |
 |---|---|---|
 | 1. Names | Every hostname you know about | |
-| 2. Alive | Which of them actually answer, with headers | |
+| 2. Alive | Which of them answer, with headers | |
 | 3. Content | URLs, directories, files | |
 | 4. Review | The things a human should look at | |
 
@@ -118,22 +118,20 @@ pages, and name the free tool that does it.
 
 ### Task 2: run the stages by hand
 
-Pick your target from [Recon basics](01-recon-basics.md). Do stages 1 to 4
-manually, in the browser and with `curl`, and write down the command or click that
-produced each result.
-
-A minimal manual run:
+Pick the domain you have been using for this module and do stages 1 to 4
+manually, in the browser and with `curl`, writing down the command or the click
+that produced each result.
 
 ```bash
 # stage 1, names: certificate transparency, in the browser
-#   https://crt.sh  ->  search %.your-target
+#   https://crt.sh  ->  search %.your-domain
 
-# stage 2, alive: do the hosts answer, and what do they say
-curl -I http://demo.testfire.net/
+# stage 2, alive: what the host says about itself
+curl -I https://your-domain
 
 # stage 3, content: the paths that matter
-curl -s http://demo.testfire.net/robots.txt
-curl -s http://demo.testfire.net/ | grep -oE 'href="[^"]+"|src="[^"]+"'
+curl -s https://your-domain/robots.txt
+curl -s https://your-domain/ | grep -oE 'href="[^"]+"|src="[^"]+"'
 
 # stage 4, review: read what you collected
 ```
@@ -143,26 +141,23 @@ curl -s http://demo.testfire.net/ | grep -oE 'href="[^"]+"|src="[^"]+"'
 
 ### Task 3: write the script
 
-Write the pipeline as a script you could run next time on a new target. It does
-not have to run today. It has to be correct, readable, and safe.
-
-Rules it must follow:
+Write the pipeline as a script you could run next time on a new target. Rules it
+must follow:
 
 - Names, then alive, then content, in that order.
 - A rate limit on anything that sends many requests.
-- It writes output to files, one per stage, so a finding can be traced back.
+- Output to one file per stage, so any finding can be traced back.
 - It refuses to run against a domain that is not in a list you pass it, so you
-  cannot accidentally point it at something out of scope.
+  cannot point it at something out of scope by accident.
 
-If you have a Linux or macOS terminal, run it against a target you own. If you do
-not, that is fine. The script and the reasoning are the deliverable.
+If you have a Linux or macOS terminal, run it against a domain you own. If you do
+not, the script and the reasoning are the deliverable.
 
 ### Deliverable
 
 1. The filled-in pipeline table.
 2. Your script, or your manual command list for the four stages.
-3. One paragraph: which stage found the most, and which stage needed a human to
-   make sense of it.
+3. One paragraph: which stage found the most, and which stage needed a human.
 
 ### Room task
 
@@ -175,4 +170,4 @@ discovery stage properly, including how to filter output so it is readable.
 - What breaks if you point a pipeline at a domain you do not control?
 - Which part of a run would you still want a human to look at?
 
-[Previous: Web archives](07-web-archives.md) | [Session index](README.md) | [Next: Skills assessment](09-skills-assessment.md)
+[Previous: Web archives](07-web-archives.md) | [Session index](README.md) | [Next: OWASP Top 10 to PortSwigger](09-owasp-top-10-to-portswigger.md)

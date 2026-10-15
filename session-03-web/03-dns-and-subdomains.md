@@ -129,18 +129,16 @@ the ones that differ. Without it the output is unreadable.
 
 ## Practise
 
-Everything on this page can be done in a browser. Terminal commands are optional
-extras for those who have them.
+Everything here is a browser, plus `nslookup` or `dig` if you already have them.
+Nothing to install.
 
-### Task 1: DNS records, in a browser
+### Task 1: DNS records
 
 Open [viewdns.info](https://viewdns.info/) or
-[dnsdumpster.com](https://dnsdumpster.com/), and look up a domain you are allowed
-to investigate. Record every record type it shows you.
+[dnsdumpster.com](https://dnsdumpster.com/) and look up the domain you picked.
+Record every record type it shows, and what each one tells you.
 
-For each one, write down what it tells you:
-
-| Type | What it tells you | Your target's value |
+| Type | What it tells you | Your domain's value |
 |---|---|---|
 | A | The IPv4 address of a host | |
 | AAAA | The IPv6 address, often forgotten | |
@@ -149,8 +147,8 @@ For each one, write down what it tells you:
 | NS | Who runs the DNS | |
 | TXT | SPF, verification tokens, sometimes secrets | |
 
-**If you have a terminal**, the same thing from the command line. On Windows use
-`nslookup`, which is already installed. On macOS and Linux use either.
+**If you have a terminal**, the same thing from the command line. Windows has
+`nslookup`. macOS and Linux have both.
 
 ```powershell
 # Windows
@@ -166,79 +164,59 @@ dig +short example.com TXT
 dig +short example.com NS
 ```
 
-### Task 2: certificate transparency, in a browser
+### Task 2: certificate transparency
 
-This is the single most effective passive subdomain technique, and it needs no
-tools at all.
+The most effective passive subdomain technique, and it needs no tools at all.
 
 1. Open [crt.sh](https://crt.sh).
 2. Search for `%.` followed by your domain, for example `%.example.com`.
-3. From the results, list every unique name.
-4. How many of those names are not the main website?
+3. List every unique name in the result.
+4. How many are not the main website?
 5. Answer: why does this work? What is it about TLS certificates that makes every
    name they cover public?
 
-Every certificate authority logs every certificate it issues. That log is public
-on purpose, which is why it is such a good source for subdomains.
+Every certificate authority logs every certificate it issues, and those logs are
+public on purpose. That is why this finds subdomains that are linked nowhere.
 
-### Task 3: subdomains against the room
+### Task 3: the rooms
 
-The guided version, with real answers, is in
-**[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
-(free). It uses DNSDumpster and the certificate logs against a target and asks you
-for specific findings.
+- **[TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail)** (free)
+  for every record type, with questions on each.
+- **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
+  (free) for the guided version of subdomain enumeration, with real answers.
 
-For the record types themselves, with questions on each,
-**[TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail)** (free) is
-the room for this page.
+### Task 4: subdomain versus virtual host
 
-### Task 4: zone transfers, and the honest answer
+Two different things that people mix up.
 
-A zone transfer asks a name server for every record it holds. If it is not
-restricted, you get the whole map at once. This is worth trying, and it is worth
-knowing that it almost always fails.
+- A **subdomain** is a DNS name that resolves, like `dev.example.com`.
+- A **virtual host** is a site served by one IP based only on the `Host` header.
+  There may be no DNS record for it at all.
+
+Answer:
+
+1. Why can a virtual host exist with no DNS record?
+2. Which of the two does a browser use to decide what to show you?
+3. Why does finding virtual hosts matter even if you already have the subdomain
+   list?
+
+Finding virtual hosts needs a target you are authorised to test, so do it in the
+**[ffuf room](https://tryhackme.com/room/ffuf)** (free), which has one, rather than
+against a site you do not own.
+
+### Task 5: try a zone transfer, and note the answer
+
+A zone transfer asks a name server for every record it holds. It is worth trying
+once so you know what it looks like.
 
 ```bash
 dig axfr @ns1.example.com example.com
 ```
 
-1. Try it against a domain you are allowed to test.
-2. Record the result. `Transfer failed` is the correct and expected answer on a
-   well configured server, and "checked, refused" belongs in your notes.
+1. Run it against your chosen domain, or the room's target.
+2. Record the result. `Transfer failed` is the correct answer on a well configured
+   server, and "checked, refused" belongs in your notes.
 3. Explain why an open zone transfer would be a serious finding.
-
-Windows has no `dig`. If you want to try this, the room above covers it.
-
-### Task 5: subdomain versus virtual host
-
-These are different things and people mix them up.
-
-- A **subdomain** is a DNS name that resolves, like `dev.example.com`.
-- A **virtual host** is a site served by an IP based only on the `Host` header in
-  the request. There may be no DNS record for it at all.
-
-Answer:
-
-1. Why can a virtual host exist with no DNS record?
-2. Which one does a browser use to decide what to show you?
-3. Why does finding virtual hosts matter if you already have the subdomain list?
-
-Aggressive vhost fuzzing belongs on a target you are authorised to test, so do it
-in the **[ffuf room](https://tryhackme.com/room/ffuf)** (free) rather than against
-a shared public host.
-
-### Real world table
-
-Against a domain you are allowed to investigate:
-
-| What | Your answer |
-|---|---|
-| A record for the apex | |
-| MX, and the provider it implies | |
-| NS, and who runs them | |
-| Anything interesting in TXT | |
-| Names from certificate transparency | |
-| Did a zone transfer work, and should it have | |
 
 **Questions for your notes:**
 
