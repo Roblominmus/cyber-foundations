@@ -129,132 +129,107 @@ the ones that differ. Without it the output is unreadable.
 
 ## Practise
 
-### Task 1: DNS records, flag 1
+Everything on this page can be done in a browser. Terminal commands are optional
+extras for those who have them.
 
-Start the range. Everything here works on all three systems; pick your row.
+### Task 1: DNS records, in a browser
 
-**Linux or macOS, with dig:**
+Open [viewdns.info](https://viewdns.info/) or
+[dnsdumpster.com](https://dnsdumpster.com/), and look up a domain you are allowed
+to investigate. Record every record type it shows you.
 
-```bash
-dig @127.0.0.1 -p 15353 recon.lab ANY
-dig +short @127.0.0.1 -p 15353 recon.lab MX
-dig +short @127.0.0.1 -p 15353 recon.lab NS
-dig +short @127.0.0.1 -p 15353 recon.lab TXT
-```
+For each one, write down what it tells you:
 
-**Windows, with nslookup (already installed):**
+| Type | What it tells you | Your target's value |
+|---|---|---|
+| A | The IPv4 address of a host | |
+| AAAA | The IPv6 address, often forgotten | |
+| CNAME | An alias, which can reveal a third party service | |
+| MX | The mail provider | |
+| NS | Who runs the DNS | |
+| TXT | SPF, verification tokens, sometimes secrets | |
 
-```powershell
-nslookup -port=15353 -type=any recon.lab 127.0.0.1
-nslookup -port=15353 -type=mx  recon.lab 127.0.0.1
-nslookup -port=15353 -type=txt recon.lab 127.0.0.1
-nslookup -port=15353 -type=ns  recon.lab 127.0.0.1
-```
-
-**Any system, using the tools container, which is the same dig everywhere:**
-
-```bash
-docker compose run --rm tools @dns recon.lab ANY
-```
-
-1. **Flag 1** is in the TXT record on the zone. Write it down with the command
-   that produced it.
-2. List every record type the zone holds and what each one tells you.
-
-### Task 2: zone transfer, flag 2
-
-A zone transfer asks a name server for every record it holds. When a server does
-not restrict who can ask, you get the whole map at once.
-
-```bash
-# Linux or macOS
-dig @127.0.0.1 -p 15353 AXFR recon.lab
-
-# any system, including Windows
-docker compose run --rm tools @dns AXFR recon.lab
-```
-
-3. **Flag 2** is in the TXT record of a name that no wordlist will guess. Find it
-   in the dump.
-4. Count every name the transfer gave you. Now count how many of them a wordlist
-   would have found. Write both numbers down, because the gap between them is the
-   whole argument for trying AXFR first.
-5. On a real target this usually fails with `Transfer failed`. That is the correct
-   answer, and it is worth recording as "checked, refused".
-
-### Task 3: subdomain enumeration, and why brute force loses
-
-The range ships its own wordlist, so this needs no Kali paths.
-
-**Linux or macOS:**
-
-```bash
-while read -r w; do
-  dig +short @127.0.0.1 -p 15353 "$w.recon.lab" A | grep -q . && echo "found: $w.recon.lab"
-done < recon-range/wordlist.txt
-```
-
-**Windows PowerShell:**
+**If you have a terminal**, the same thing from the command line. On Windows use
+`nslookup`, which is already installed. On macOS and Linux use either.
 
 ```powershell
-Get-Content recon-range\wordlist.txt | ForEach-Object {
-  $r = Resolve-DnsName -Server 127.0.0.1 -Port 15353 -Type A "$_.recon.lab" -ErrorAction SilentlyContinue
-  if ($r) { "found: $_.recon.lab" }
-}
+# Windows
+nslookup -type=mx example.com
+nslookup -type=txt example.com
+nslookup -type=ns example.com
 ```
-
-**Any system, naming one host at a time through the tools container, which is the
-same dig everywhere:**
 
 ```bash
-docker compose run --rm tools @dns portal.recon.lab A
-docker compose run --rm tools @dns www.recon.lab A
+# macOS and Linux
+dig +short example.com MX
+dig +short example.com TXT
+dig +short example.com NS
 ```
 
-6. Which names did brute force find?
-7. Which names did it miss that the zone transfer handed you?
-8. Explain, in one sentence, why brute force can never be complete.
+### Task 2: certificate transparency, in a browser
 
-### Task 4: certificate transparency, in a browser
-
-This one cannot be faked locally, because it needs the real certificate log. It
-needs no tools, so it works on any system.
+This is the single most effective passive subdomain technique, and it needs no
+tools at all.
 
 1. Open [crt.sh](https://crt.sh).
-2. Search for `%.` followed by a domain you are allowed to look at, for example
-   `%.example.com`.
+2. Search for `%.` followed by your domain, for example `%.example.com`.
 3. From the results, list every unique name.
-4. Compare that list with what subdomain brute force would plausibly find.
-5. Answer: why does this work at all? What is it about certificates that makes
-   every name public?
+4. How many of those names are not the main website?
+5. Answer: why does this work? What is it about TLS certificates that makes every
+   name they cover public?
 
-The room's version of this, with its own answers, is in
-[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)
-(free).
+Every certificate authority logs every certificate it issues. That log is public
+on purpose, which is why it is such a good source for subdomains.
 
-### Task 5: subdomain is not virtual host
+### Task 3: subdomains against the room
 
-The web server decides which site to serve from the `Host` header alone, with no
-DNS involved. That is how one IP hosts many sites.
+The guided version, with real answers, is in
+**[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
+(free). It uses DNSDumpster and the certificate logs against a target and asks you
+for specific findings.
+
+For the record types themselves, with questions on each,
+**[TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail)** (free) is
+the room for this page.
+
+### Task 4: zone transfers, and the honest answer
+
+A zone transfer asks a name server for every record it holds. If it is not
+restricted, you get the whole map at once. This is worth trying, and it is worth
+knowing that it almost always fails.
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" -H "Host: www.recon.lab"    http://127.0.0.1:8080/
-curl -s -o /dev/null -w "%{http_code}\n" -H "Host: portal.recon.lab" http://127.0.0.1:8080/
-curl -s -o /dev/null -w "%{http_code}\n" -H "Host: nope.recon.lab"   http://127.0.0.1:8080/
+dig axfr @ns1.example.com example.com
 ```
 
-6. The third one returns 404 while the first two return 200. Why does that
-   difference matter for finding virtual hosts?
-7. On Windows, if `curl` does not behave, use `curl.exe` in the same command.
+1. Try it against a domain you are allowed to test.
+2. Record the result. `Transfer failed` is the correct and expected answer on a
+   well configured server, and "checked, refused" belongs in your notes.
+3. Explain why an open zone transfer would be a serious finding.
 
-You will finish this on page 04, because the hidden vhost holds flag 7.
+Windows has no `dig`. If you want to try this, the room above covers it.
 
-### Room task and real world table
+### Task 5: subdomain versus virtual host
 
-**[TryHackMe: DNS in Detail](https://tryhackme.com/room/dnsindetail)** (free) for
-every record type with questions.
+These are different things and people mix them up.
 
-Against a real domain you are allowed to investigate:
+- A **subdomain** is a DNS name that resolves, like `dev.example.com`.
+- A **virtual host** is a site served by an IP based only on the `Host` header in
+  the request. There may be no DNS record for it at all.
+
+Answer:
+
+1. Why can a virtual host exist with no DNS record?
+2. Which one does a browser use to decide what to show you?
+3. Why does finding virtual hosts matter if you already have the subdomain list?
+
+Aggressive vhost fuzzing belongs on a target you are authorised to test, so do it
+in the **[ffuf room](https://tryhackme.com/room/ffuf)** (free) rather than against
+a shared public host.
+
+### Real world table
+
+Against a domain you are allowed to investigate:
 
 | What | Your answer |
 |---|---|
@@ -263,14 +238,12 @@ Against a real domain you are allowed to investigate:
 | NS, and who runs them | |
 | Anything interesting in TXT | |
 | Names from certificate transparency | |
-| Names from the range wordlist method | |
-| Which source found more, and why | |
 | Did a zone transfer work, and should it have | |
 
 **Questions for your notes:**
 
-- Why did the zone transfer give you names that brute force missed?
-- Why does `nope.recon.lab` returning 404 matter for vhost fuzzing?
+- Why is certificate transparency so effective at finding subdomains?
+- Why does a refused zone transfer still belong in your notes?
 - What is the difference between a subdomain and a virtual host?
 
 [Previous: WHOIS and email addresses](02-whois.md) | [Session index](README.md) | [Next: Fingerprinting](04-fingerprinting.md)

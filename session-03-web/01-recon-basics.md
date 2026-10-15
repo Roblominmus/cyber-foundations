@@ -92,55 +92,56 @@ reach for the right one.
 
 ## Practise
 
-### Start the range first
+Nothing to install on this page or any page in this module. Everything is a
+browser, plus the free rooms. It works on Windows, macOS and Linux, and it works
+if you are reading this on GitHub.
 
-You will use it from page 03 onwards. It needs Docker and nothing else, and the
-command is the same on Linux, macOS and Windows.
+### Your practice target
 
-```bash
-cd recon-range
-docker compose up -d
-```
+Open [demo.testfire.net](http://demo.testfire.net/) in a browser. It is IBM's
+deliberately vulnerable banking application, published so people can practise on
+it. From here on, this is your target unless a task says otherwise.
 
-It is a DNS server and a messy web server on your own machine, with eight flags
-planted in it. Leave it running. Full details, including the Windows specific
-commands, are in the [range README](recon-range/README.md).
+Two more worth knowing:
 
-If you cannot run Docker, do not stop here. Every page still has browser tasks
-that need no local tooling at all.
+- [scanme.nmap.org](http://scanme.nmap.org/), Nmap's own scan target, published
+  for exactly this purpose
+- [public-firing-range.appspot.com](https://public-firing-range.appspot.com/),
+  Google's Firing Range, built for practising scanners
 
-### Then the two passive rooms
+These are shared public hosts. Browse them, read them, run the light checks in
+this module. Do not brute force them. The rooms are where you get to be
+aggressive.
 
-These need no local tools, only a browser, so they work for everyone:
+### The two passive rooms
 
-1. **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**
-   (free). WHOIS, DNS, certificate transparency, Shodan and search engines, which
-   are pages 02, 03, 06 and 07 of this module. Answer every question in it.
-2. **[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**
-   (free). Ping, traceroute, netcat and curl. The active half, and it feeds page
-   04.
+Both free, both need only a browser and a free account:
+
+1. **[TryHackMe: Passive Reconnaissance](https://tryhackme.com/room/passiverecon)**.
+   WHOIS, DNS, certificate transparency, Shodan and search engines. This covers
+   pages 02, 03, 06 and 07. Answer every question in it.
+2. **[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**.
+   Ping, traceroute, netcat and curl. The active half, and it feeds page 04.
 
 ### Keep a notes file from the first minute
 
-One file per target. For every finding, the command and the output. This is the
-real deliverable of the module, not the flags.
+One file per target. For every finding, the command or the click that produced it,
+and the output. This is the real deliverable of the module.
 
 ```
-TARGET: recon.lab (or the room's target)
---- names
-- portal.recon.lab        from the DNS zone
---- infra
-- 127.0.0.1:15353         the range DNS
+TARGET: demo.testfire.net
+--- names and infra
+- 65.x.x.x        resolves for demo.testfire.net
 --- tech
-- nginx 1.x               Server header
-- ReconLab/1.4.2          X-Powered-By
---- entry points and leaks
-- /ftp/                   from robots.txt
---- flags
-- 1 FLAG{...}             dig @127.0.0.1 -p 15353 recon.lab TXT
+- Server header   from devtools, Network tab
+--- entry points
+- /login.jsp      linked from the home page
+--- leaks
+- robots.txt      disallows nothing useful, recorded anyway
+--- findings
+- no HTTPS on the login form, meaning credentials cross in clear text
 ```
 
-That last block matters. A flag with no command behind it is a guess, and a
-finding with no evidence is not a finding.
+The last block is the point. A finding with no evidence is not a finding.
 
 [Session index](README.md) | [Next: WHOIS and email addresses](02-whois.md)

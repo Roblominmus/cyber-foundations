@@ -97,97 +97,72 @@ tools.
 
 ## Practise
 
-### Task: automate the range end to end
+Automation needs tools, so this is the one page where a terminal helps. But the
+thinking is the exercise, and you can do that anywhere.
 
-The range has eight flags. Do not look for them by hand this time. Write the
-pipeline, let it find them, then verify only what it reports.
+### Task 1: write the pipeline, in order
 
-Target details:
+Here is the chain, empty. Fill in each stage with the technique from the earlier
+pages, and name the free tool that does it.
 
-- DNS on `127.0.0.1:15353`, zone `recon.lab`
-- Web on `127.0.0.1:8080`, with `Host` headers for the vhosts
-- The wordlist is `recon-range/wordlist.txt`
+| Stage | What it produces | Tool |
+|---|---|---|
+| 1. Names | Every hostname you know about | |
+| 2. Alive | Which of them actually answer, with headers | |
+| 3. Content | URLs, directories, files | |
+| 4. Review | The things a human should look at | |
 
-Subfinder and httpx expect real DNS and real hostnames, so against a lab you swap
-those stages for `dig` and `curl`. The stages are what matter, not the brands.
+1. Why is the order names, then alive, then content, and not the reverse?
+2. Which stage would you run first if you had one hour on a new target, and why?
+3. Why would you not start with a vulnerability scanner?
 
-**Linux or macOS version:**
+### Task 2: run the stages by hand
+
+Pick your target from [Recon basics](01-recon-basics.md). Do stages 1 to 4
+manually, in the browser and with `curl`, and write down the command or click that
+produced each result.
+
+A minimal manual run:
 
 ```bash
-#!/usr/bin/env bash
-set -uo pipefail
-WL=recon-range/wordlist.txt
+# stage 1, names: certificate transparency, in the browser
+#   https://crt.sh  ->  search %.your-target
 
-echo "[*] zone dump"
-dig @127.0.0.1 -p 15353 AXFR recon.lab | tee zone.txt
+# stage 2, alive: do the hosts answer, and what do they say
+curl -I http://demo.testfire.net/
 
-echo "[*] names that resolve"
-while read -r w; do
-  dig +short @127.0.0.1 -p 15353 "$w.recon.lab" A | grep -q . && echo "$w.recon.lab"
-done < "$WL" | sort -u | tee names.txt
+# stage 3, content: the paths that matter
+curl -s http://demo.testfire.net/robots.txt
+curl -s http://demo.testfire.net/ | grep -oE 'href="[^"]+"|src="[^"]+"'
 
-echo "[*] vhosts and headers"
-while read -r h; do
-  code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: $h.recon.lab" http://127.0.0.1:8080/)
-  [ "$code" = "200" ] && echo "$h.recon.lab" && curl -s -D - -o /dev/null -H "Host: $h.recon.lab" http://127.0.0.1:8080/
-done < "$WL" | tee vhosts.txt
-
-echo "[*] content that is not a 404"
-for p in /robots.txt /sitemap.xml /.well-known/security.txt /.git/HEAD /.git/config \
-         /ftp/ /ftp/staff-passwords.txt /internal/notes.html /static/app.js \
-         /public/annual-report.pdf /backup/; do
-  code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: www.recon.lab" "http://127.0.0.1:8080$p")
-  [ "$code" != "404" ] && echo "$code  $p"
-done | tee content.txt
-
-echo "[*] flags seen"
-grep -rho "FLAG{[^}]*}" . | sort -u
+# stage 4, review: read what you collected
 ```
 
-**Windows PowerShell version:**
+`curl` ships with Windows 10 and later, macOS and Linux. On Windows use
+`curl.exe` if plain `curl` opens something else.
 
-```powershell
-$wl   = "recon-range\wordlist.txt"
-$base = "http://127.0.0.1:8080"
+### Task 3: write the script
 
-"--- zone dump"
-docker compose run --rm tools @dns AXFR recon.lab | Tee-Object zone.txt
+Write the pipeline as a script you could run next time on a new target. It does
+not have to run today. It has to be correct, readable, and safe.
 
-"--- names that resolve"
-Get-Content $wl | ForEach-Object {
-  $r = Resolve-DnsName -Server 127.0.0.1 -Port 15353 -Type A "$_.recon.lab" -ErrorAction SilentlyContinue
-  if ($r) { "$_.recon.lab" }
-} | Sort-Object -Unique | Tee-Object names.txt
+Rules it must follow:
 
-"--- vhosts"
-Get-Content $wl | ForEach-Object {
-  $c = curl.exe -s -o NUL -w "%{http_code}" -H "Host: $_.recon.lab" "$base/"
-  if ($c -eq "200") { "$_.recon.lab" }
-} | Sort-Object -Unique
+- Names, then alive, then content, in that order.
+- A rate limit on anything that sends many requests.
+- It writes output to files, one per stage, so a finding can be traced back.
+- It refuses to run against a domain that is not in a list you pass it, so you
+  cannot accidentally point it at something out of scope.
 
-"--- content that is not a 404"
-$paths = "/robots.txt","/sitemap.xml","/.well-known/security.txt","/.git/HEAD",
-         "/.git/config","/ftp/","/ftp/staff-passwords.txt","/internal/notes.html",
-         "/static/app.js","/public/annual-report.pdf","/backup/"
-foreach ($p in $paths) {
-  $c = curl.exe -s -o NUL -w "%{http_code}" -H "Host: www.recon.lab" "$base$p"
-  if ($c -ne "404") { "{0}  {1}" -f $c, $p }
-} | Tee-Object content.txt
-
-"--- flags seen"
-Select-String -Path .\*.txt -Pattern "FLAG{[^}]*}" -AllMatches |
-  ForEach-Object { $_.Matches.Value } | Sort-Object -Unique
-```
+If you have a Linux or macOS terminal, run it against a target you own. If you do
+not, that is fine. The script and the reasoning are the deliverable.
 
 ### Deliverable
 
-Save it as `recon-range.sh` or `recon-range.ps1`, then answer:
-
-1. How many of the eight flags did your script find without you touching it?
-2. For each one it missed, why did it miss it, and what would you add?
-3. Which stage produced the most findings?
-4. Why should `nuclei` still not be the first stage, even on your own range?
-5. Your script printed a lot of noise. Which filter removed the most of it?
+1. The filled-in pipeline table.
+2. Your script, or your manual command list for the four stages.
+3. One paragraph: which stage found the most, and which stage needed a human to
+   make sense of it.
 
 ### Room task
 
@@ -196,8 +171,8 @@ discovery stage properly, including how to filter output so it is readable.
 
 **Questions for your notes:**
 
-- Why is the order names, then alive, then content, and not the reverse?
-- What breaks if you point this at a domain you do not control?
-- Which part of the run would you still want a human to look at?
+- Why is the pipeline order names, alive, content, and not the reverse?
+- What breaks if you point a pipeline at a domain you do not control?
+- Which part of a run would you still want a human to look at?
 
 [Previous: Web archives](07-web-archives.md) | [Session index](README.md) | [Next: Skills assessment](09-skills-assessment.md)

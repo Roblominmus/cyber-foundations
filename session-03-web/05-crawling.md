@@ -113,116 +113,103 @@ URLs lead to new URLs.
 
 ## Practise
 
-Everything here is `curl`, which ships with Windows 10 and later, macOS and Linux.
-On Windows use `curl.exe` if plain `curl` misbehaves.
+Everything here is a browser, and optionally `curl`, which ships with Windows 10
+and later, macOS and Linux. Nothing to install.
 
-### Task 1: robots.txt, flags 4 and 5
+### Task 1: robots.txt and the sitemap
 
-```bash
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/robots.txt
+Open these in the browser on your target:
+
+```
+http://demo.testfire.net/robots.txt
+http://demo.testfire.net/sitemap.xml
 ```
 
 1. List every `Disallow` path. Each one is a path somebody did not want indexed.
-2. Fetch each one directly, because a request is not a control:
+2. Fetch each disallowed path directly in the browser. A request is not a control.
+3. Was anything there that is not linked from the site?
+4. Note the result for each path, including the ones that give nothing. "Checked,
+   404" belongs in your notes.
 
-```bash
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/ftp/
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/internal/
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/backup/
+### Task 2: read the source
+
+View the source of the home page and of two others. The rendered page hides things
+the source does not.
+
+1. Search the source for `<!--`. List every comment and what it reveals.
+2. Search for `type="hidden"`. Is anything important client controlled?
+3. List every `<script src="...">`. Open each one and search for `api`, `key`,
+   `token`, `secret`, and any path starting with `/`.
+4. Note the `<meta name="generator">` if there is one.
+
+An HTML comment that says "TODO remove before launch" is a real thing that ships.
+
+### Task 3: the well-known pass
+
+Try these in the browser. Record the status of each:
+
+```
+/.well-known/security.txt
+/.git/HEAD
+/.env
+/.DS_Store
+/backup.zip
+/phpinfo.php
+/server-status
+/swagger.json
+/openapi.json
+/actuator
 ```
 
-3. Two of them return something. **Flag 4** is inside a file of staff passwords
-   in one directory. **Flag 5** is on a page in the other.
-4. Name the second file in the `/ftp` listing and say what it leaks.
-5. One disallowed path returns nothing. Record it as checked and explain why "I
-   looked and there was nothing" still belongs in your notes.
+1. Which return anything other than 404?
+2. Which two would matter most on a real target, and what would you do next?
+3. `/.well-known/security.txt` is legitimate. What does it give you?
 
-### Task 2: source and JavaScript, flags 3 and 6
+If you have `curl`, the same thing faster. On Windows, `curl.exe`:
 
 ```bash
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/about.html
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/static/app.js
-```
-
-6. **Flag 3** is in an HTML comment. Developers leave notes, and notes ship.
-7. List every API endpoint the JavaScript names. How many does the user interface
-   actually link to?
-8. **Flag 6** is a key in that bundle. Explain why a key in client side code is a
-   finding even when it works perfectly.
-
-### Task 3: an exposed Git directory, flag 8
-
-```bash
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/.git/HEAD
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/.git/config
-```
-
-9. **Flag 8** is in the `origin` URL in the config, as the password in a
-   `https://user:pass@host` style remote.
-10. On a real target, a readable `.git` directory usually means the whole
-    repository, including its history, can be reconstructed. Explain what you
-    would do next and why you would not just download it without thinking.
-
-### Task 4: the well-known pass, and document metadata
-
-Not everything hides in the site's own links.
-
-**Linux or macOS:**
-
-```bash
-for p in /.well-known/security.txt /.git/HEAD /.env /.DS_Store /backup.zip \
+for p in /.well-known/security.txt /.git/HEAD /.env /.ds_store /backup.zip \
          /phpinfo.php /server-status /swagger.json /openapi.json /actuator; do
-  code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: www.recon.lab" "http://127.0.0.1:8080$p")
-  printf "%-28s %s\n" "$p" "$code"
+  printf "%-28s " "$p"
+  curl -s -o /dev/null -w "%{http_code}\n" "http://demo.testfire.net$p"
 done
 ```
 
-**Windows PowerShell:**
+### Task 4: document metadata
 
-```powershell
-$paths = "/.well-known/security.txt","/.git/HEAD","/.env","/.DS_Store","/backup.zip",
-         "/phpinfo.php","/server-status","/swagger.json","/openapi.json","/actuator"
-foreach ($p in $paths) {
-  $c = curl.exe -s -o NUL -w "%{http_code}" -H "Host: www.recon.lab" "http://127.0.0.1:8080$p"
-  "{0,-30} {1}" -f $p, $c
-}
-```
+Find any document your target publishes, a PDF or an office file, and download it.
+Then look at its metadata.
 
-11. Which paths return something other than 404? Which two matter most, and why?
-12. Now the document. The site links a PDF:
+**In a browser:** open the PDF, then look at File, then Properties. Author, creator
+and producer are almost always there.
+
+**If you have a terminal**, and you are on Linux or macOS, `strings` needs no
+install:
 
 ```bash
-curl -s -H "Host: www.recon.lab" http://127.0.0.1:8080/public/annual-report.pdf -o report.pdf
+strings report.pdf | grep -iE "author|creator|producer|title"
 ```
 
-Read its metadata. Any of these works:
-
-```bash
-exiftool report.pdf                 # if you have it
-strings report.pdf | head -20       # no tools needed at all
-```
-
-On Windows, `strings` is not built in, but Notepad or any text editor will show
-these lines, and PowerShell can too:
+On Windows, open the file in Notepad and search for the same words, or use
+PowerShell:
 
 ```powershell
-Get-Content .\report.pdf -Raw | Select-String -Pattern "Author|Creator|Title" -AllMatches
+Get-Content .\report.pdf -Raw | Select-String -Pattern "Author|Creator|Producer" -AllMatches
 ```
 
-13. Who is the author, and what software made the document?
-14. Cross reference the author with the staff list in `/ftp`. Why does that
-    matter more than either finding alone?
+1. Who authored it, and what software made it?
+2. Why is the software name a fingerprinting finding?
+3. Why does an author name matter when you already have the email addresses?
 
-### Room and lab tasks
+### Task 5: the rooms and the labs
 
-- **[TryHackMe: ffuf](https://tryhackme.com/room/ffuf)** (free): content discovery
-  against a live target, including a hidden `/ftp` folder.
-- [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) locally: the same
-  pass, for real. robots.txt, `/ftp`, the JavaScript bundles, the API paths.
+- **[TryHackMe: ffuf](https://tryhackme.com/room/ffuf)** (free). Content discovery
+  against a live target, including finding a hidden `/ftp` folder and a file
+  inside it. This is the guided version of everything above, with real answers.
 - The two labs on
   **[PortSwigger: Information disclosure](https://portswigger.net/web-security/information-disclosure)**
-  about error messages, and about `robots.txt` and backup files.
+  (free account). One is about leaking information through error messages, the
+  other about `robots.txt` and backup files. Both are hosted, no setup.
 
 **Questions for your notes:**
 

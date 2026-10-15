@@ -89,73 +89,51 @@ Confirm the version first.
 
 ## Practise
 
-### Task 1: read the headers, any operating system
+### Task 1: read the headers in the browser, no tools
+
+1. Open [demo.testfire.net](http://demo.testfire.net/).
+2. Open developer tools, then the Network tab, then reload the page.
+3. Click the first request for the page itself, not an image.
+4. Read the response headers.
+
+Record:
+
+| Header | Your target's value | What it tells you |
+|---|---|---|
+| `Server` | | Web server and version |
+| `X-Powered-By` | | Language or framework |
+| `Set-Cookie` names | | Session technology |
+| `Via`, `X-Cache`, `CF-Ray` | | Anything in front of the origin |
+
+1. What web server and version is it?
+2. What do the cookie names suggest about the language?
+3. Is anything in front of the origin?
+
+**Optional, if you have a terminal.** `curl` ships with Windows 10 and later,
+macOS and Linux, so this needs no install:
 
 ```bash
-curl -s -D - -o /dev/null -H "Host: www.recon.lab" http://127.0.0.1:8080/
+curl -I http://demo.testfire.net/
 ```
 
-On Windows use `curl.exe` if plain `curl` opens something else. In PowerShell,
-`curl` is an alias for `Invoke-WebRequest`, so `curl.exe` is the reliable form.
+On Windows use `curl.exe` if plain `curl` opens something else.
 
-1. What web server and version does `Server` name?
-2. What does `X-Powered-By` claim?
-3. Are those real products with real versions? What would you search for next?
-4. What is missing from these headers that you might see on other servers, and
-   what does the absence tell you?
+### Task 2: version detection against a host meant for it
 
-### Task 2: find the hidden virtual host, flag 7
-
-Unknown hostnames return 404, so you have a baseline. Find the hosts that are real.
-
-**Linux or macOS, with ffuf:**
+[scanme.nmap.org](http://scanme.nmap.org/) is Nmap's own target, published so
+people can practise scanning it. If you have `nmap`, this is authorised and
+expected:
 
 ```bash
-ffuf -w recon-range/wordlist.txt -u http://127.0.0.1:8080/ \
-     -H "Host: FUZZ.recon.lab" -fs 153
+nmap -sV scanme.nmap.org
 ```
 
-`-fs 153` throws away responses of that size, which is the 404 page, so only the
-real hosts survive.
+If you do not have nmap, skip it. The browser tasks below cover the same idea.
 
-**Windows PowerShell, no extra tools needed:**
+### Task 3: compare three sites
 
-```powershell
-Get-Content recon-range\wordlist.txt | ForEach-Object {
-  $out = curl.exe -s -o NUL -w "%{http_code} %{size_download}" -H "Host: $_.recon.lab" http://127.0.0.1:8080/
-  if ($out -notlike "404*") { "found: $_.recon.lab  ($out)" }
-}
-```
-
-**Any system, using the tools container:**
-
-```bash
-docker compose run --rm tools @dns portal.recon.lab A
-```
-
-5. Which hostnames answer?
-6. Now look at the headers on each:
-
-```bash
-curl -s -D - -o /dev/null -H "Host: portal.recon.lab" http://127.0.0.1:8080/
-```
-
-**Flag 7** is in a header that only that vhost sends. That is the lesson: one IP,
-several sites, and one of them has something the others do not.
-
-### Task 3: fingerprint something real, in a browser
-
-Needs no tools, so it works anywhere:
-
-1. Open a site you are allowed to look at in a browser.
-2. Open developer tools, then the Network tab, then reload.
-3. Click the first request to the page and read the response headers.
-4. Record `Server`, any `X-Powered-By`, and the session cookie names.
-5. Install a technology detection extension such as Wappalyzer and compare what
-   it reports with what you found by hand.
-
-Do that for three sites that you expect to differ: a large company, a small
-business, and a personal site.
+Three sites you are allowed to look at: a large company, a small business, and a
+personal site. Do step 1 for each and fill this in.
 
 | | Large company | Small business | Personal site |
 |---|---|---|---|
@@ -168,7 +146,8 @@ business, and a personal site.
 ### Room task
 
 **[TryHackMe: Active Reconnaissance](https://tryhackme.com/room/activerecon)**
-(free). The header and curl questions there are exactly this page, on a real host.
+(free). The header and curl questions there are exactly this page, on a real host,
+with real answers.
 
 **Questions for your notes:**
 
